@@ -1,0 +1,86 @@
+<div class="config-header">
+    <div>
+      <h2>Página de Inicio</h2>
+      <p>Edita el texto y la imagen que ven tus visitantes al entrar</p>
+    </div>
+  </div>
+  
+  <div class="inicio-form-card">
+  
+    <div class="preview-section">
+      <p class="preview-titulo">Vista previa</p>
+      <div class="preview-box">
+        <span class="preview-subtitle">{{ form.subtitulo || 'Subtítulo de ejemplo' }}</span>
+        <h2>{{ form.titulo || 'Título de ejemplo' }}</h2>
+        <p>{{ form.descripcion || 'La descripción aparecerá aquí...' }}</p>
+      </div>
+    </div>
+  
+    <div class="imagen-section">
+      <label class="imagen-picker">
+        <input type="file" accept="image/*" (change)="onImagenSeleccionada($event)">
+        <img *ngIf="previewImagen" [src]="previewImagen">
+        <div *ngIf="!previewImagen" class="imagen-placeholder">
+          <i class="fa-solid fa-image"></i>
+          <span>Seleccionar imagen</span>
+        </div>
+      </label>
+      <p class="imagen-hint">Haz clic en la imagen para cambiarla</p>
+    </div>
+  
+    <div class="input-group">
+      <label>Subtítulo (etiqueta pequeña)</label>
+      <input type="text" [(ngModel)]="form.subtitulo" placeholder="Ej. Nutrición Integral y Salud Hormonal">
+    </div>
+  
+    <div class="input-group">
+      <label>Título principal</label>
+      <input type="text" [(ngModel)]="form.titulo" placeholder="Ej. LN Brenda Lagunas">
+    </div>
+  
+    <div class="input-group">
+      <label>Descripción</label>
+      <textarea rows="4" [(ngModel)]="form.descripcion" placeholder="Un mensaje breve de bienvenida para tus visitantes"></textarea>
+    </div>
+  
+    <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="exito-text" *ngIf="mensajeExito"><i class="fa-solid fa-circle-check"></i> {{ mensajeExito }}</p>
+  
+    <div class="galeria-section">
+      <p class="galeria-titulo">Galería de imágenes (carrusel del Inicio)</p>
+      <p class="galeria-ayuda">Se rotan automáticamente cada 5 segundos. Ideal: fotos tuyas, comida saludable, tips o tu espacio de consulta.</p>
+    
+      <div class="galeria-grid" *ngIf="galeriaHero.length">
+        <div class="galeria-item" *ngFor="let img of galeriaHero">
+          <img [src]="imagenGaleriaUrl(img)">
+          <button class="galeria-eliminar" (click)="eliminarDeGaleria(img)">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    
+      <label class="galeria-agregar">
+        <input type="file" accept="image/*" multiple (change)="onImagenesGaleriaSeleccionadas($event)">
+        <i class="fa-solid fa-images"></i>
+        Seleccionar imágenes nuevas
+      </label>
+    
+      <div class="galeria-previews" *ngIf="previewsNuevos.length">
+        <img *ngFor="let p of previewsNuevos" [src]="p">
+      </div>
+    
+      <button
+        class="btn-secundario-galeria"
+        *ngIf="previewsNuevos.length"
+        [disabled]="subiendoGaleria"
+        (click)="subirGaleria()"
+      >
+        {{ subiendoGaleria ? 'Subiendo...' : 'Subir a la galería' }}
+      </button>
+    </div>
+    
+    <button class="btn-primary" [disabled]="guardando" (click)="guardar()">
+      {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+    </button>
+  
+  </div>

@@ -1,0 +1,51 @@
+<div class="login-page">
+  <button class="theme-btn-login" (click)="theme.toggleTema()">
+    <i class="fa-solid" [class.fa-moon]="!theme.modoOscuro" [class.fa-sun]="theme.modoOscuro"></i>
+  </button>
+    <div class="login-card">
+  
+      <div class="login-logo">
+        <div class="logo-icons">
+          <img src="assets/logo.png" alt="LN Brenda Lagunas" class="circle-icon-img" />
+        </div>
+        <h1>LN Brenda Lagunas</h1>
+        <span>Panel de Administración</span>
+      </div>
+      <p class="aviso-sesion" *ngIf="sesionExpirada">
+        <i class="fa-solid fa-clock-rotate-left"></i> Tu sesión expiró por seguridad. Inicia sesión de nuevo.
+      </p>
+  
+      <form (ngSubmit)="onLogin()">
+  
+        <div class="input-group">
+          <label>Correo electrónico</label>
+          <input
+            type="email"
+            placeholder="tu@correo.com"
+            [(ngModel)]="email"
+            name="email"
+            required
+          />
+        </div>
+  
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            [(ngModel)]="password"
+            name="password"
+            required
+          />
+        </div>
+  
+        <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+  
+        <button type="submit" [disabled]="cargando">
+          {{ cargando ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+  
+      </form>
+  
+    </div>
+  </div>

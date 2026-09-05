@@ -1,0 +1,91 @@
+  <div class="config-header">
+    <div>
+      <h2>Pedidos</h2>
+      <p>Historial de compras realizadas en la tienda</p>
+      <span class="contador-total">{{ cantidadTotal }} {{ cantidadTotal === 1 ? 'pedido' : 'pedidos' }} en total</span>
+    </div>
+    <div class="resumen-ventas">
+      <span>Total vendido</span>
+      <strong>${{ totalVentas }} MXN</strong>
+    </div>
+  </div>
+  
+  <div class="toolbar">
+    <input
+      class="buscador"
+      type="text"
+      placeholder="Buscar por nombre o teléfono..."
+      [(ngModel)]="filtro"
+    >
+  
+    <button
+      class="filtro-pendientes"
+      [class.activo]="soloPendientes"
+      (click)="soloPendientes = !soloPendientes"
+    >
+      <i class="fa-solid fa-filter"></i>
+      Solo pendientes
+      <span class="contador" *ngIf="cantidadPendientes">{{ cantidadPendientes }}</span>
+    </button>
+  </div>
+  
+  <div *ngIf="gruposPedidos.length; else vacio">
+    <div class="grupo-seccion" *ngFor="let grupo of gruposPedidos">
+  
+      <div class="grupo-header">
+        <i [class]="grupo.icono"></i>
+        <span>{{ grupo.label }}</span>
+        <span class="grupo-contador">{{ grupo.pedidos.length }}</span>
+      </div>
+  
+      <div class="pedidos-lista">
+        <div class="pedido-card" *ngFor="let p of grupo.pedidos">
+  
+          <div class="pedido-resumen" (click)="toggleExpandir(p._id)">
+            <div class="pedido-info">
+              <h4>{{ p.nombreCliente }}</h4>
+              <p><i class="fa-solid fa-phone"></i> {{ p.telefono }} · {{ p.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+  
+            <div class="pedido-tags">
+              <span class="tag" [class.transferencia]="p.metodoPago === 'Transferencia'">{{ p.metodoPago }}</span>
+              <span class="tag entrega">{{ p.metodoEntrega }}</span>
+            </div>
+  
+            <button
+              class="btn-entregado"
+              [class.marcado]="p.entregado"
+              (click)="toggleEntregado(p, $event)"
+            >
+              <i class="fa-solid" [class.fa-check]="p.entregado" [class.fa-box]="!p.entregado"></i>
+              {{ p.entregado ? 'Entregado' : 'Pendiente' }}
+            </button>
+  
+            <div class="pedido-total">
+              <strong>${{ p.total }}</strong>
+              <i class="fa-solid fa-chevron-down" [class.rotado]="pedidoExpandido === p._id"></i>
+            </div>
+          </div>
+  
+          <div class="pedido-detalle" *ngIf="pedidoExpandido === p._id">
+            <p class="detalle-direccion" *ngIf="p.direccionEnvio">
+              <i class="fa-solid fa-location-dot"></i> {{ p.direccionEnvio }}
+            </p>
+            <p class="detalle-tienda" *ngIf="!p.direccionEnvio">
+              <i class="fa-solid fa-store"></i> El cliente pasará a recoger su pedido en el consultorio
+            </p>
+            <div class="detalle-item" *ngFor="let item of p.items">
+              <span>{{ item.nombre }} x{{ item.cantidad }}</span>
+              <span>${{ item.precioUnitario * item.cantidad }}</span>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+  
+    </div>
+  </div>
+  
+  <ng-template #vacio>
+    <div class="sin-datos">No hay pedidos que coincidan con tu búsqueda.</div>
+  </ng-template>

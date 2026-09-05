@@ -1,0 +1,42 @@
+<div class="config-header">
+    <div>
+      <h2>Productos Recomendados</h2>
+      <p>Sube el PDF que verán tus visitantes con los productos que recomiendas</p>
+    </div>
+  </div>
+  
+  <div class="recomendados-form-card">
+  
+    <div class="input-group">
+      <label>Título de la página</label>
+      <input type="text" [(ngModel)]="form.titulo">
+    </div>
+  
+    <div class="input-group">
+      <label>Descripción breve</label>
+      <textarea rows="3" [(ngModel)]="form.descripcion" placeholder="Ej. Aquí encontrarás los productos que recomiendo incorporar a tu dieta diaria."></textarea>
+    </div>
+  
+    <div class="pdf-actual" *ngIf="nombreArchivoActual">
+      <i class="fa-solid fa-file-pdf"></i>
+      <div>
+        <p class="pdf-nombre">{{ nombreArchivoActual }}</p>
+        <p class="pdf-fecha" *ngIf="fechaActualizacion">Actualizado el {{ fechaActualizacion }}</p>
+      </div>
+      <a [href]="pdfUrlActual" target="_blank" class="pdf-ver-link">Ver</a>
+    </div>
+  
+    <label class="pdf-picker">
+      <input type="file" accept="application/pdf" (change)="onPdfSeleccionado($event)">
+      <i class="fa-solid fa-file-arrow-up"></i>
+      <span>{{ archivoPdf ? archivoPdf.name : (nombreArchivoActual ? 'Reemplazar PDF' : 'Seleccionar PDF') }}</span>
+    </label>
+  
+    <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="exito-text" *ngIf="mensajeExito"><i class="fa-solid fa-circle-check"></i> {{ mensajeExito }}</p>
+  
+    <button class="btn-primary" [disabled]="guardando" (click)="guardar()">
+      {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+    </button>
+  
+  </div>

@@ -1,0 +1,45 @@
+<div class="config-layout">
+
+  <!-- BOTÓN HAMBURGUESA (solo visible en pantallas chicas) -->
+  <button class="mobile-toggle" (click)="toggleSidebar()">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <!-- FONDO OSCURO DETRÁS DEL SIDEBAR EN MÓVIL -->
+  <div class="sidebar-overlay" *ngIf="sidebarAbierto" (click)="cerrarSidebar()"></div>
+
+  <aside class="config-sidebar" [class.abierto]="sidebarAbierto">
+    <div class="sidebar-brand">
+      <img src="assets/logo.png" alt="LN Brenda Lagunas" class="logo-badge-img" />
+      <div>
+        <h2>Panel Admin</h2>
+        <span>LN Brenda Lagunas</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="cerrarSidebar()"><i class="fa-solid fa-gauge-high"></i> Panel General</a>
+      <a routerLink="productos" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-jar"></i> Productos</a>
+      <a routerLink="disponibilidad" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-calendar-days"></i> Disponibilidad</a>
+      <a routerLink="citas" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-calendar-check"></i> Citas</a>
+      <a routerLink="pacientes" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-user-doctor"></i> Pacientes</a>
+      <a routerLink="recetas" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-utensils"></i> Recetas</a>
+      <a routerLink="recomendados" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-file-pdf"></i> Recomendados</a>
+      <a routerLink="pedidos" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-bag-shopping"></i> Pedidos</a>
+      <a routerLink="inicio" routerLinkActive="active" (click)="cerrarSidebar()"><i class="fa-solid fa-house"></i> Inicio</a>
+    </nav>
+
+    <button class="theme-btn-sidebar" (click)="theme.toggleTema()">
+      <i class="fa-solid" [class.fa-moon]="!theme.modoOscuro" [class.fa-sun]="theme.modoOscuro"></i>
+      {{ theme.modoOscuro ? 'Modo claro' : 'Modo oscuro' }}
+    </button>
+    <button class="logout-btn" (click)="cerrarSesion()">
+      <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="config-content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

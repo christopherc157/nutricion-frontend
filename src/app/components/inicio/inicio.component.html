@@ -1,0 +1,139 @@
+<app-nav></app-nav>
+
+<app-loading *ngIf="cargando" mensaje="Cargando..."></app-loading>
+<section class="hero" *ngIf="!cargando">
+
+  <div class="hero-content">
+    <span class="subtitle">{{ config.subtitulo || 'Nutrición Integral y Salud Hormonal' }}</span>
+    <h2>{{ config.titulo || 'LN Brenda Lagunas' }}</h2>
+    <p>{{ config.descripcion || 'Te acompaño en tu proceso hacia una vida equilibrada y saludable.' }}</p>
+
+    <div class="hero-buttons">
+      <a routerLink="/agenda" class="btn btn-primary-pink">
+        <i class="fa-solid fa-calendar-check"></i> Agendar cita
+      </a>
+      <a routerLink="/tienda" class="btn btn-outline-green">
+        <i class="fa-solid fa-basket-shopping"></i> Ver tienda
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-image" *ngIf="galeriaUrls.length; else imagenUnica">
+    <div class="carrusel-wrapper">
+      <img
+        *ngFor="let img of galeriaUrls; let i = index"
+        [src]="img"
+        [alt]="config.titulo"
+        class="carrusel-img"
+        [class.activa]="i === indiceActual"
+      >
+    </div>
+  
+    <div class="carrusel-puntos" *ngIf="galeriaUrls.length > 1">
+      <button
+        *ngFor="let img of galeriaUrls; let i = index"
+        class="punto-carrusel"
+        [class.activo]="i === indiceActual"
+        (click)="irAImagen(i)"
+        [attr.aria-label]="'Ver imagen ' + (i + 1)"
+      ></button>
+    </div>
+  </div>
+  
+  <ng-template #imagenUnica>
+    <div class="hero-image" *ngIf="imagenUrl">
+      <img [src]="imagenUrl" [alt]="config.titulo">
+    </div>
+  </ng-template>
+
+</section>
+
+<!-- QUÉ OFREZCO -->
+<section class="servicios-section">
+  <div class="section-intro">
+    <span class="subtitle">Cómo te acompaño</span>
+    <h2>Qué te ofrezco</h2>
+  </div>
+
+  <div class="servicios-grid">
+    <div class="servicio-card" *ngFor="let s of servicios">
+      <div class="servicio-icono"><i [class]="s.icono"></i></div>
+      <h4>{{ s.titulo }}</h4>
+      <p>{{ s.descripcion }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTOS DESTACADOS -->
+<section class="destacados-section" *ngIf="productosDestacados.length">
+  <div class="section-intro">
+    <span class="subtitle">Recomendados para ti</span>
+    <h2>Productos destacados</h2>
+  </div>
+
+  <div class="destacados-grid">
+    <div class="destacado-card" *ngFor="let p of productosDestacados">
+      <div class="destacado-imagen">
+        <img *ngIf="p.foto" [src]="imagenProducto(p)" [alt]="p.nombre">
+        <div class="sin-imagen" *ngIf="!p.foto"><i class="fa-solid fa-jar"></i></div>
+      </div>
+      <div class="destacado-info">
+        <h5>{{ p.nombre }}</h5>
+        <span class="precio">${{ p.precio }} MXN</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ver-tienda-wrapper">
+    <a routerLink="/tienda" class="btn btn-outline-green">
+      Ver toda la tienda <i class="fa-solid fa-arrow-right"></i>
+    </a>
+  </div>
+</section>
+
+<!-- UBICACIÓN -->
+<section class="ubicacion-section">
+  <div class="section-intro">
+    <span class="subtitle">Visítanos</span>
+    <h2>Nuestra ubicación</h2>
+  </div>
+
+  <div class="ubicacion-card">
+
+    <div class="ubicacion-mapa">
+      <iframe
+        [src]="mapaEmbedUrl"
+        width="100%"
+        height="100%"
+        style="border:0;"
+        allowfullscreen
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+
+    <div class="ubicacion-info">
+      <div class="ubicacion-icono"><i class="fa-solid fa-location-dot"></i></div>
+      <h4>{{ nombreConsultorio }}</h4>
+      <p>{{ direccionCompleta }}</p>
+
+      <a [href]="mapaLinkUrl" target="_blank" class="btn btn-outline-green">
+        <i class="fa-solid fa-diamond-turn-right"></i> Cómo llegar
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>¿Lista para comenzar tu proceso?</h2>
+  <p>Agenda tu cita hoy mismo y demos juntos el primer paso hacia una vida más equilibrada.</p>
+  <a routerLink="/agenda" class="btn btn-primary-pink">
+    <i class="fa-solid fa-calendar-check"></i> Agendar cita
+  </a>
+</section>
+
+<app-footer></app-footer>

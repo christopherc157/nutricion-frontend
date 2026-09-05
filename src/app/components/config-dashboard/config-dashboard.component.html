@@ -1,0 +1,85 @@
+<div class="config-header">
+    <div>
+      <h2>Panel General</h2>
+      <p>Resumen rápido de tu consultorio y tienda</p>
+    </div>
+  </div>
+  
+  <div class="stats-grid">
+  
+    <div class="stat-card pink">
+      <div class="stat-icono"><i class="fa-solid fa-calendar-day"></i></div>
+      <div class="stat-info">
+        <span class="stat-numero">{{ citasHoy.length }}</span>
+        <span class="stat-label">Citas de hoy</span>
+      </div>
+    </div>
+  
+    <div class="stat-card amber">
+      <div class="stat-icono"><i class="fa-solid fa-clock"></i></div>
+      <div class="stat-info">
+        <span class="stat-numero">{{ citasPendientesTotal }}</span>
+        <span class="stat-label">Citas pendientes</span>
+      </div>
+    </div>
+  
+    <div class="stat-card green">
+      <div class="stat-icono"><i class="fa-solid fa-sack-dollar"></i></div>
+      <div class="stat-info">
+        <span class="stat-numero">${{ ventasDelMes }}</span>
+        <span class="stat-label">Ventas del mes</span>
+      </div>
+    </div>
+  
+    <div class="stat-card blue">
+      <div class="stat-icono"><i class="fa-solid fa-bag-shopping"></i></div>
+      <div class="stat-info">
+        <span class="stat-numero">{{ pedidosDelMes }}</span>
+        <span class="stat-label">Pedidos del mes</span>
+      </div>
+    </div>
+  
+  </div>
+  
+  <div class="paneles-grid">
+  
+    <!-- CITAS DE HOY -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <h3><i class="fa-solid fa-calendar-day"></i> Citas de hoy</h3>
+        <a routerLink="/config/citas">Ver todas</a>
+      </div>
+  
+      <div class="lista-simple" *ngIf="citasHoy.length; else sinCitasHoy">
+        <div class="item-simple" *ngFor="let c of citasHoy">
+          <span class="item-hora">{{ formatearHora12(c.hora) }}</span>
+          <span class="item-nombre">{{ c.nombre }}</span>
+          <span class="item-tag" [class.ok]="c.atendida">{{ c.atendida ? 'Atendida' : 'Pendiente' }}</span>
+        </div>
+      </div>
+  
+      <ng-template #sinCitasHoy>
+        <p class="panel-vacio">No tienes citas agendadas para hoy.</p>
+      </ng-template>
+    </div>
+  
+    <!-- STOCK BAJO -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> Stock bajo</h3>
+        <a routerLink="/config/productos">Ver productos</a>
+      </div>
+  
+      <div class="lista-simple" *ngIf="productosStockBajo.length; else sinStockBajo">
+        <div class="item-simple" *ngFor="let p of productosStockBajo">
+          <span class="item-nombre">{{ p.nombre }}</span>
+          <span class="item-tag warn">{{ p.stock }} en stock</span>
+        </div>
+      </div>
+  
+      <ng-template #sinStockBajo>
+        <p class="panel-vacio">Todos tus productos tienen stock suficiente.</p>
+      </ng-template>
+    </div>
+  
+  </div>

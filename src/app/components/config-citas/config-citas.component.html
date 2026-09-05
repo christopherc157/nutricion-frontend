@@ -1,0 +1,92 @@
+  <div class="config-header">
+    <div>
+      <h2>Citas agendadas</h2>
+      <p>Historial de todas las citas de tus clientes</p>
+    </div>
+    <span class="contador-total">{{ cantidadTotal }} {{ cantidadTotal === 1 ? 'cita' : 'citas' }} en total</span>
+  </div>
+  
+  <div class="toolbar">
+    <input
+      class="buscador"
+      type="text"
+      placeholder="Buscar por nombre, teléfono o tipo de consulta..."
+      [(ngModel)]="filtro"
+    >
+  
+    <button
+      class="filtro-pendientes"
+      [class.activo]="soloPendientes"
+      (click)="soloPendientes = !soloPendientes"
+    >
+      <i class="fa-solid fa-filter"></i>
+      Solo pendientes
+      <span class="contador" *ngIf="cantidadPendientes">{{ cantidadPendientes }}</span>
+    </button>
+  </div>
+  
+  <div *ngIf="gruposCitas.length; else vacio">
+    <div class="grupo-seccion" *ngFor="let grupo of gruposCitas">
+  
+      <div class="grupo-header">
+        <i [class]="grupo.icono"></i>
+        <span>{{ grupo.label }}</span>
+        <span class="grupo-contador">{{ grupo.citas.length }}</span>
+      </div>
+  
+      <div class="citas-lista">
+        <div class="cita-card" *ngFor="let c of grupo.citas" [class.pasada]="!esProxima(c.fecha)">
+  
+          <div class="cita-fecha">
+            <span class="dia">{{ c.fecha | date:'dd' }}</span>
+            <span class="mes">{{ c.fecha | date:'MMM' }}</span>
+          </div>
+  
+          <div class="cita-info">
+            <h4>{{ c.nombre }}</h4>
+            <p><i class="fa-solid fa-phone"></i> {{ c.telefono }}</p>
+            <p><i class="fa-solid fa-clock"></i> {{ formatearHora12(c.hora) }} · {{ c.tipoConsulta }}</p>
+            <p class="motivo" *ngIf="c.motivo"><i class="fa-solid fa-comment"></i> {{ c.motivo }}</p>
+          </div>
+  
+          <div class="cita-acciones">
+            <button
+              class="btn-atendida"
+              [class.marcada]="c.atendida"
+              (click)="toggleAtendida(c)"
+            >
+              <i class="fa-solid" [class.fa-check]="c.atendida" [class.fa-clock]="!c.atendida"></i>
+              {{ c.atendida ? 'Atendida' : 'Pendiente' }}
+            </button>
+  
+            <span class="badge" [class.proxima]="esProxima(c.fecha)">
+              {{ esProxima(c.fecha) ? 'Próxima' : 'Pasada' }}
+            </span>
+  
+            <button class="btn-eliminar" (click)="confirmarEliminar(c)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+  
+        </div>
+      </div>
+  
+    </div>
+  </div>
+  
+  <ng-template #vacio>
+    <div class="sin-datos">No hay citas que coincidan con tu búsqueda.</div>
+  </ng-template>
+  
+  <!-- CONFIRMAR ELIMINAR -->
+  <div class="modal-backdrop" *ngIf="mostrarConfirmacion" (click)="mostrarConfirmacion = false">
+    <div class="modal confirm" (click)="$event.stopPropagation()">
+      <div class="warn-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3>¿Cancelar esta cita?</h3>
+      <p>Se eliminará la cita de <strong>{{ citaAEliminar?.nombre }}</strong> y ese horario quedará disponible de nuevo.</p>
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarConfirmacion = false">Volver</button>
+        <button class="btn-danger" (click)="eliminarConfirmado()">Sí, cancelar</button>
+      </div>
+    </div>
+  </div>

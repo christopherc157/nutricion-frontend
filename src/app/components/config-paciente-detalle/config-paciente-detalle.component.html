@@ -1,0 +1,167 @@
+<div class="config-header">
+    <a routerLink="/config/pacientes" class="volver-link">
+      <i class="fa-solid fa-arrow-left"></i> Volver a pacientes
+    </a>
+  </div>
+  
+  <div class="ficha-paciente" *ngIf="paciente">
+  
+    <div class="paciente-resumen">
+      <div class="paciente-avatar-grande">{{ paciente.nombre.charAt(0) }}</div>
+      <div class="paciente-datos">
+        <h2>{{ paciente.nombre }}</h2>
+        <p><i class="fa-solid fa-envelope"></i> {{ paciente.correo }}</p>
+        <p><i class="fa-solid fa-phone"></i> {{ paciente.telefono }}</p>
+        <span class="paciente-objetivo" *ngIf="paciente.objetivo">{{ paciente.objetivo }}</span>
+      </div>
+      <button class="btn-eliminar-paciente" (click)="eliminarPaciente()">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+  
+    <!-- RESUMEN RÁPIDO -->
+    <div class="stats-rapidas" *ngIf="ultimoSeguimiento">
+      <div class="stat-mini">
+        <span class="stat-mini-label">Peso actual</span>
+        <span class="stat-mini-valor">{{ ultimoSeguimiento.peso }} kg</span>
+      </div>
+      <div class="stat-mini" *ngIf="ultimoSeguimiento.imc">
+        <span class="stat-mini-label">IMC</span>
+        <span class="stat-mini-valor">{{ ultimoSeguimiento.imc }}</span>
+      </div>
+      <div class="stat-mini" *ngIf="diferenciaPeso !== null">
+        <span class="stat-mini-label">Cambio total</span>
+        <span class="stat-mini-valor" [class.positivo]="diferenciaPeso! < 0" [class.negativo]="diferenciaPeso! > 0">
+          {{ diferenciaPeso! > 0 ? '+' : '' }}{{ diferenciaPeso }} kg
+        </span>
+      </div>
+    </div>
+  
+    <!-- GRÁFICA -->
+    <div class="grafica-card" *ngIf="seguimientos.length >= 2">
+      <p class="grafica-titulo">Evolución del peso</p>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="grafica-svg">
+        <polyline
+          [attr.points]="puntosGrafica"
+          fill="none"
+          stroke="#d81b60"
+          stroke-width="2"
+          vector-effect="non-scaling-stroke"
+        />
+      </svg>
+      <div class="grafica-fechas">
+        <span>{{ primerSeguimiento?.fecha }}</span>
+        <span>{{ ultimoSeguimiento?.fecha }}</span>
+      </div>
+    </div>
+  
+    <!-- HISTORIAL -->
+    <div class="historial-header">
+      <h3>Historial de seguimiento</h3>
+      <button class="btn-primary" (click)="abrirNuevoSeguimiento()">
+        <i class="fa-solid fa-plus"></i> Nuevo registro
+      </button>
+    </div>
+  
+    <div class="seguimientos-lista" *ngIf="seguimientos.length; else sinSeguimientos">
+      <div class="seguimiento-card" *ngFor="let s of seguimientos.slice().reverse()">
+        <div class="seguimiento-fecha">{{ s.fecha }}</div>
+  
+        <div class="seguimiento-datos">
+          <span><strong>{{ s.peso }} kg</strong></span>
+          <span *ngIf="s.imc">IMC {{ s.imc }}</span>
+          <span *ngIf="s.grasaCorporal">{{ s.grasaCorporal }}% grasa</span>
+          <span *ngIf="s.cintura">Cintura {{ s.cintura }}cm</span>
+          <span *ngIf="s.cadera">Cadera {{ s.cadera }}cm</span>
+        </div>
+  
+        <p class="seguimiento-obs" *ngIf="s.observaciones">{{ s.observaciones }}</p>
+        <p class="seguimiento-objetivo" *ngIf="s.proximoObjetivo">
+          <i class="fa-solid fa-flag"></i> Próximo: {{ s.proximoObjetivo }}
+        </p>
+  
+        <button class="btn-eliminar-mini" (click)="confirmarEliminar(s)">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  
+    <ng-template #sinSeguimientos>
+      <div class="sin-datos">Todavía no hay registros de seguimiento para este paciente.</div>
+    </ng-template>
+  
+  </div>
+  
+  <!-- MODAL NUEVO SEGUIMIENTO -->
+  <div class="modal-backdrop" *ngIf="mostrarModal" (click)="mostrarModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+  
+      <h2>Nuevo registro de seguimiento</h2>
+  
+      <div class="input-row">
+        <div class="input-group">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="form.fecha">
+        </div>
+        <div class="input-group">
+          <label>Peso (kg)</label>
+          <input type="number" step="0.1" [(ngModel)]="form.peso">
+        </div>
+      </div>
+  
+      <div class="input-row">
+        <div class="input-group">
+          <label>Estatura (cm)</label>
+          <input type="number" [(ngModel)]="form.estatura">
+        </div>
+        <div class="input-group">
+          <label>% Grasa corporal</label>
+          <input type="number" step="0.1" [(ngModel)]="form.grasaCorporal">
+        </div>
+      </div>
+  
+      <div class="input-row">
+        <div class="input-group">
+          <label>Cintura (cm)</label>
+          <input type="number" step="0.1" [(ngModel)]="form.cintura">
+        </div>
+        <div class="input-group">
+          <label>Cadera (cm)</label>
+          <input type="number" step="0.1" [(ngModel)]="form.cadera">
+        </div>
+      </div>
+  
+      <div class="input-group">
+        <label>Observaciones</label>
+        <textarea rows="3" [(ngModel)]="form.observaciones" placeholder="Cómo va el paciente, ajustes realizados..."></textarea>
+      </div>
+  
+      <div class="input-group">
+        <label>Próximo objetivo</label>
+        <input type="text" [(ngModel)]="form.proximoObjetivo" placeholder="Para la siguiente consulta">
+      </div>
+  
+      <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+  
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarModal = false">Cancelar</button>
+        <button class="btn-primary" [disabled]="guardando" (click)="guardarSeguimiento()">
+          {{ guardando ? 'Guardando...' : 'Guardar registro' }}
+        </button>
+      </div>
+  
+    </div>
+  </div>
+  
+  <!-- CONFIRMAR ELIMINAR SEGUIMIENTO -->
+  <div class="modal-backdrop" *ngIf="mostrarConfirmacion" (click)="mostrarConfirmacion = false">
+    <div class="modal confirm" (click)="$event.stopPropagation()">
+      <div class="warn-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3>¿Eliminar este registro?</h3>
+      <p>Se eliminará el registro del {{ seguimientoAEliminar?.fecha }}. Esta acción no se puede deshacer.</p>
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarConfirmacion = false">Cancelar</button>
+        <button class="btn-danger" (click)="eliminarConfirmado()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>

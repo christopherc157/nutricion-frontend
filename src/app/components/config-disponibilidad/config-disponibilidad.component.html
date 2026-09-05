@@ -1,0 +1,97 @@
+<div class="config-header">
+    <div>
+      <h2>Disponibilidad</h2>
+      <p>Marca los días y horarios habilitados para citas</p>
+    </div>
+  </div>
+  
+  <div class="calendario-card">
+  
+    <div class="calendario-header">
+      <button class="nav-mes" (click)="cambiarMes(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+      <h3>{{ nombresMeses[mesActual.getMonth()] }} {{ mesActual.getFullYear() }}</h3>
+      <button class="nav-mes" (click)="cambiarMes(1)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  
+    <div class="dias-semana">
+      <span *ngFor="let d of nombresDias">{{ d }}</span>
+    </div>
+  
+    <div class="grid-calendario">
+      <div
+        class="celda"
+        *ngFor="let celda of celdas"
+        [class.vacia]="!celda"
+        [class.pasada]="celda?.esPasado"
+        [class.habilitada]="celda?.habilitado && !celda?.esPasado"
+        (click)="abrirDia(celda)"
+      >
+        <span *ngIf="celda">{{ celda.numero }}</span>
+        <i class="fa-solid fa-check check-mini" *ngIf="celda?.habilitado && !celda?.esPasado"></i>
+      </div>
+    </div>
+  
+    <div class="leyenda">
+      <span><i class="punto habilitado"></i> Con horarios cargados</span>
+      <span><i class="punto libre"></i> Sin configurar (clic para agregar)</span>
+    </div>
+  
+  </div>
+  
+  <!-- MODAL DEL DÍA -->
+  <div class="modal-backdrop" *ngIf="mostrarModal" (click)="mostrarModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+  
+      <h2>Horarios del {{ formatearFechaVisual(fechaSeleccionada) }}</h2>
+  
+      <div class="generador">
+        <p class="generador-titulo">Generar horarios automáticamente</p>
+        <div class="generador-fila">
+          <div class="input-group">
+            <label>Desde</label>
+            <input type="time" [(ngModel)]="horaInicio">
+          </div>
+          <div class="input-group">
+            <label>Hasta</label>
+            <input type="time" [(ngModel)]="horaFin">
+          </div>
+          <div class="input-group">
+            <label>Cada</label>
+            <select [(ngModel)]="intervaloMin">
+              <option [value]="30">30 min</option>
+              <option [value]="60">60 min</option>
+              <option [value]="90">90 min</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-generar" (click)="generarHoras()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Generar horarios
+        </button>
+      </div>
+  
+      <div class="horas-lista" *ngIf="horas.length">
+        <p class="horas-titulo">Horarios de este día</p>
+        <div class="hora-chip" *ngFor="let h of horas" [class.deshabilitada]="!h.disponible">
+          <span (click)="toggleHora(h)">
+            <i class="fa-solid" [class.fa-check]="h.disponible" [class.fa-xmark]="!h.disponible"></i>
+            {{ formatearHora12(h.hora) }}
+          </span>
+          <button (click)="quitarHora(h)"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+  
+      <p class="ayuda-texto" *ngIf="!horas.length">
+        Generá horarios con el bloque de arriba, o guardá el día vacío si no querés recibir citas.
+      </p>
+  
+      <div class="modal-acciones">
+        <button class="btn-danger-outline" (click)="eliminarDia()">
+          <i class="fa-solid fa-ban"></i> Deshabilitar día
+        </button>
+        <button class="btn-primary" [disabled]="guardando" (click)="guardarDia()">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+  
+    </div>
+  </div>

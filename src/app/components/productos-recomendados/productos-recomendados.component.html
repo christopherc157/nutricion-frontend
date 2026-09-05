@@ -1,0 +1,79 @@
+<app-nav></app-nav>
+
+<app-loading *ngIf="cargando" mensaje="Cargando..."></app-loading>
+
+<section class="recomendados-page" *ngIf="!cargando">
+
+  <div class="recomendados-intro">
+    <span class="subtitle">Guía de alimentos</span>
+    <h2>{{ config.titulo || 'Productos Recomendados' }}</h2>
+    <p *ngIf="config.descripcion">{{ config.descripcion }}</p>
+  </div>
+
+  <div class="recomendados-card" *ngIf="pdfUrl; else sinPdf">
+
+    <!-- CARGANDO PÁGINAS -->
+    <div class="procesando" *ngIf="procesandoPaginas">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p>Preparando el contenido...</p>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-carga" *ngIf="errorCarga">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p>{{ errorCarga }}</p>
+      <a [href]="pdfUrl" download class="btn btn-primary-pink">
+        <i class="fa-solid fa-download"></i> Descargar documento
+      </a>
+    </div>
+
+    <!-- GALERÍA -->
+    <div class="galeria-pdf" *ngIf="!procesandoPaginas && !errorCarga && paginasImagenes.length">
+
+      <div class="visor-principal">
+        <button class="flecha flecha-izq" (click)="paginaAnterior()" [disabled]="paginaActual === 0">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="pagina-wrapper">
+          <img [src]="paginasImagenes[paginaActual]" [alt]="'Página ' + (paginaActual + 1)">
+        </div>
+
+        <button class="flecha flecha-der" (click)="paginaSiguiente()" [disabled]="paginaActual === paginasImagenes.length - 1">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <p class="contador-paginas">Página {{ paginaActual + 1 }} de {{ paginasImagenes.length }}</p>
+
+      <div class="miniaturas" *ngIf="paginasImagenes.length > 1">
+        <button
+          class="miniatura"
+          *ngFor="let img of paginasImagenes; let i = index"
+          [class.activa]="i === paginaActual"
+          (click)="irAPagina(i)"
+        >
+          <img [src]="img" [alt]="'Miniatura página ' + (i + 1)">
+        </button>
+      </div>
+
+      <div class="recomendados-acciones">
+        <a [href]="pdfUrl" download class="btn btn-outline-green">
+          <i class="fa-solid fa-download"></i> Descargar en PDF
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <ng-template #sinPdf>
+    <div class="sin-datos">
+      <i class="fa-solid fa-leaf"></i>
+      <p>Todavía no hay un documento disponible.</p>
+    </div>
+  </ng-template>
+
+</section>
+
+<app-footer></app-footer>

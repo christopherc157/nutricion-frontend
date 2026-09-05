@@ -1,0 +1,218 @@
+.topbar {
+    background: var(--white);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .topbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  
+  /* LINKS HORIZONTALES (escritorio) */
+  .nav-links-desktop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .nav-links-desktop a {
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: .2s;
+    white-space: nowrap;
+  }
+  
+  .nav-links-desktop a:hover {
+    background: var(--pink-light);
+    color: var(--pink-primary);
+  }
+  
+  .nav-links-desktop a.active {
+    background: var(--pink-primary);
+    color: white;
+  }
+  
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  
+  /* BOTÓN HAMBURGUESA: solo aparece en pantallas chicas */
+  .menu-btn-mobile {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    padding: 6px;
+  }
+  
+  .logo-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  
+  .logo-badge {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--pink-primary), var(--green-accent));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+  }
+
+  .logo-badge-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  
+  .logo-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--pink-primary);
+    line-height: 1.1;
+  }
+  
+  .logo-text span {
+    font-size: 0.7rem;
+    color: var(--green-accent);
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .theme-btn {
+    background: var(--bg-light);
+    color: var(--text-muted);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: .2s;
+    margin-right: 8px;
+  }
+  
+  .theme-btn:hover {
+    background: var(--pink-light);
+    color: var(--pink-primary);
+  }
+
+  .cart-btn {
+    background: var(--pink-light);
+    color: var(--pink-primary);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: .2s;
+  }
+  
+  .cart-btn:hover {
+    background: var(--pink-primary);
+    color: white;
+  }
+  
+  /* CAJÓN LATERAL */
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 1998;
+  }
+  
+  .drawer {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    background: var(--white);
+    box-shadow: 4px 0 20px rgba(0,0,0,.15);
+    z-index: 1999;
+    transition: left .3s ease;
+    padding: 30px 24px;
+  }
+  
+  .drawer.abierto {
+    left: 0;
+  }
+  
+  .drawer-close {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-bottom: 30px;
+  }
+  
+  .drawer ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .drawer a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    transition: .2s;
+  }
+  
+  .drawer a:hover,
+  .drawer a.active {
+    background: var(--pink-light);
+    color: var(--pink-primary);
+  }
+  .dark-theme .topbar {
+    box-shadow: 0 2px 10px rgba(0,0,0,.3);
+  }
+
+  @media (max-width: 900px) {
+    .nav-links-desktop {
+      display: none;
+    }
+  
+    .menu-btn-mobile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }

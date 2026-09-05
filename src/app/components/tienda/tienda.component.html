@@ -1,0 +1,333 @@
+<app-nav></app-nav>
+
+<section class="tienda-page">
+
+  <div class="tienda-intro">
+    <span class="subtitle">Productos recomendados</span>
+    <h2>Tienda</h2>
+    <p>Suplementos y productos seleccionados para acompañar tu proceso.</p>
+  </div>
+  
+  <div class="filtros-categoria" *ngIf="categorias.length">
+    <button
+      class="filtro-pill"
+      [class.activo]="categoriaSeleccionada === null"
+      (click)="seleccionarCategoria(null)"
+    >
+      Todos
+    </button>
+    <button
+      class="filtro-pill"
+      *ngFor="let c of categorias"
+      [class.activo]="categoriaSeleccionada === c._id"
+      (click)="seleccionarCategoria(c._id)"
+    >
+      {{ c.nombre }}
+    </button>
+  </div>
+  
+  <app-loading *ngIf="cargandoProductos" mensaje="Cargando productos..."></app-loading>
+  
+  <div class="productos-grid" *ngIf="!cargandoProductos">
+    <div class="producto-card" *ngFor="let p of productosFiltrados">
+
+      <span class="badge-agotado" *ngIf="p.stock === 0">Agotado</span>
+    
+      <div class="producto-imagen">
+        <img *ngIf="p.foto" [src]="imagenUrl(p)" [alt]="p.nombre">
+        <div class="sin-imagen" *ngIf="!p.foto"><i class="fa-solid fa-jar"></i></div>
+      </div>
+    
+      <div class="producto-info">
+        <span class="producto-categoria" *ngIf="nombreCategoria(p)">{{ nombreCategoria(p) }}</span>
+        <h4>{{ p.nombre }}</h4>
+        <p class="producto-desc" *ngIf="p.descripcion">{{ p.descripcion }}</p>
+    
+        <div class="precio-seccion">
+          <span class="precio-label">Precio al público</span>
+          <span class="precio-valor">${{ p.precio }} <small>MXN</small></span>
+        </div>
+    
+        <button
+          class="btn-agregar"
+          [disabled]="p.stock === 0"
+          (click)="agregarAlCarrito(p)"
+        >
+          <i class="fa-solid fa-plus"></i> Agregar
+        </button>
+      </div>
+    
+    </div>
+  </div>
+
+  <div class="sin-productos" *ngIf="!cargandoProductos && productos.length > 0 && productosFiltrados.length === 0">
+    No hay productos en esta categoría todavía.
+  </div>
+  
+  <div class="sin-productos" *ngIf="!cargandoProductos && productos.length === 0">
+    Todavía no hay productos disponibles.
+  </div>
+
+</section>
+
+<!-- BOTÓN FLOTANTE DEL CARRITO -->
+<button class="carrito-flotante" (click)="mostrarCarrito = true" *ngIf="cantidadTotal > 0">
+  <i class="fa-solid fa-cart-shopping"></i>
+  <span class="carrito-count">{{ cantidadTotal }}</span>
+</button>
+
+<!-- PANEL DEL CARRITO / CHECKOUT -->
+<div class="modal-backdrop" *ngIf="mostrarCarrito" (click)="intentarCerrar()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <button class="modal-close" *ngIf="paso !== 'confirmacion'" (click)="intentarCerrar()" aria-label="Cerrar">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <ng-container *ngIf="paso === 'carrito'">
+      <div class="carrito-header">
+        <h2>Tu carrito</h2>
+        <button class="btn-vaciar" *ngIf="carrito.length" (click)="confirmarVaciarCarrito()">
+          <i class="fa-solid fa-trash"></i> Vaciar
+        </button>
+      </div>
+    
+      <div class="carrito-lista" *ngIf="carrito.length; else carritoVacio">
+        <div class="carrito-item" *ngFor="let item of carrito">
+          <div class="item-info">
+            <h5>{{ item.producto.nombre }}</h5>
+            <p>${{ item.producto.precio }} c/u</p>
+          </div>
+          <div class="item-cantidad">
+            <button (click)="cambiarCantidad(item, -1)">-</button>
+            <span>{{ item.cantidad }}</span>
+            <button (click)="cambiarCantidad(item, 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #carritoVacio>
+        <p class="carrito-vacio-texto">Tu carrito está vacío</p>
+      </ng-template>
+
+      <div class="carrito-total" *ngIf="carrito.length">
+        <span>Total</span>
+        <strong>${{ totalCarrito }} MXN</strong>
+      </div>
+
+      <div class="acciones-carrito" *ngIf="carrito.length">
+        <button class="btn-secundario" (click)="seguirComprando()">
+          Seguir comprando
+        </button>
+        <button class="btn-checkout" (click)="irACheckout()">
+          Continuar
+        </button>
+      </div>
+
+      <button class="btn-checkout" *ngIf="!carrito.length" disabled>
+        Continuar
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="paso === 'checkout'">
+      <button class="volver-btn" (click)="volverAlCarrito()">
+        <i class="fa-solid fa-arrow-left"></i> Volver al carrito
+      </button>
+
+      <h2>Finalizar pedido</h2>
+
+      <div class="input-group">
+        <label>Nombre completo</label>
+        <input type="text" [(ngModel)]="form.nombre" placeholder="Tu nombre completo">
+      </div>
+
+      <div class="input-group">
+        <label>Teléfono (WhatsApp)</label>
+        <input type="tel" [(ngModel)]="form.telefono" placeholder="4521234567">
+      </div>
+
+      <div class="input-group">
+        <label>Correo electrónico</label>
+        <input type="email" [(ngModel)]="form.correo" placeholder="tu@correo.com">
+      </div>
+
+      <div class="input-group">
+        <label>Método de entrega</label>
+        <div class="opciones-toggle">
+          <button
+            [class.activo]="metodoEntrega === 'tienda'"
+            (click)="metodoEntrega = 'tienda'"
+          >
+            <i class="fa-solid fa-store"></i> Recoger en tienda
+          </button>
+          <button
+            [class.activo]="metodoEntrega === 'domicilio'"
+            (click)="metodoEntrega = 'domicilio'"
+          >
+            <i class="fa-solid fa-truck"></i> Envío a domicilio
+          </button>
+        </div>
+      </div>
+
+      <!-- DIRECCIÓN DEL CONSULTORIO: si va a recoger en tienda -->
+      <div class="direccion-info" *ngIf="metodoEntrega === 'tienda'">
+        <div class="direccion-icono"><i class="fa-solid fa-location-dot"></i></div>
+        <div>
+          <p class="direccion-nombre">{{ nombreConsultorio }}</p>
+          <p class="direccion-texto">{{ direccionConsultorio }}</p>
+          <a [href]="mapaLinkConsultorio" target="_blank" class="direccion-link">
+            Ver en mapa <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- CAMPO DE DIRECCIÓN: si es envío a domicilio -->
+      <div class="input-group" *ngIf="metodoEntrega === 'domicilio'">
+        <label>Dirección de envío</label>
+        <textarea
+          rows="3"
+          [(ngModel)]="form.direccionEnvio"
+          placeholder="Calle, número, colonia, referencias..."
+        ></textarea>
+      </div>
+
+      <div class="input-group">
+        <label>Método de pago</label>
+        <div class="opciones-toggle">
+          <button
+            [class.activo]="metodoPago === 'transferencia'"
+            (click)="metodoPago = 'transferencia'"
+          >
+            <i class="fa-solid fa-building-columns"></i> Transferencia
+          </button>
+          <button
+            [class.activo]="metodoPago === 'efectivo'"
+            (click)="metodoPago = 'efectivo'"
+          >
+            <i class="fa-solid fa-money-bill-wave"></i> Efectivo
+          </button>
+        </div>
+      </div>
+
+      <!-- DATOS BANCARIOS si eligió transferencia -->
+      <div class="datos-pago" *ngIf="metodoPago === 'transferencia'">
+        <p><strong>Banco:</strong> {{ datosBancarios.banco }}</p>
+        <p><strong>Titular:</strong> {{ datosBancarios.titular }}</p>
+        <p><strong>Cuenta:</strong> {{ datosBancarios.cuenta }}</p>
+        <p><strong>CLABE:</strong> {{ datosBancarios.clabe }}</p>
+        <p class="nota-pago">Al confirmar, te enviaremos un mensaje a WhatsApp donde podrás mandarnos tu comprobante de pago.</p>
+        <p class="nota-envio" *ngIf="metodoEntrega === 'domicilio'">
+          <i class="fa-solid fa-motorcycle"></i> El envío se realizará en moto y su costo se paga directamente al repartidor al recibir tus productos.
+        </p>
+      </div>
+
+      <!-- LEYENDA si eligió efectivo -->
+      <div class="datos-pago" *ngIf="metodoPago === 'efectivo'">
+        <p class="nota-pago">Pagarás en efectivo al momento de recibir tus productos.</p>
+        <p class="nota-envio" *ngIf="metodoEntrega === 'domicilio'">
+          <i class="fa-solid fa-motorcycle"></i> El envío se realizará en moto. Su costo se suma al pago que harás al repartidor al recibir tus productos.
+        </p>
+      </div>
+
+      <label class="check-privacidad">
+        <input type="checkbox" [(ngModel)]="aceptaPrivacidad">
+        <span>
+          He leído y acepto el
+          <a routerLink="/privacidad" target="_blank" (click)="$event.stopPropagation()">Aviso de Privacidad</a>
+        </span>
+      </label>
+
+      <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <div class="carrito-total">
+        <span>Total</span>
+        <strong>${{ totalCarrito }} MXN</strong>
+      </div>
+
+      <button class="btn-checkout" [disabled]="enviandoCodigo" (click)="confirmarPedido()">
+        {{ enviandoCodigo ? 'Enviando código...' : 'Enviar código de verificación' }}
+      </button>
+
+    </ng-container>
+
+    <ng-container *ngIf="paso === 'verificacion'">
+
+      <button class="volver-btn" (click)="volverAlCheckout()">
+        <i class="fa-solid fa-arrow-left"></i> Corregir mis datos
+      </button>
+    
+      <h2>Revisa tu correo</h2>
+      <p class="verificacion-subtitulo">Te enviamos un código a {{ form.correo }}</p>
+    
+      <div class="input-group">
+        <label>Código de 6 dígitos</label>
+        <input
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          class="codigo-input"
+          [(ngModel)]="codigoIngresado"
+          placeholder="000000"
+        >
+      </div>
+    
+      <p class="error-text" *ngIf="errorVerificacion">{{ errorVerificacion }}</p>
+    
+      <button class="btn-checkout" [disabled]="verificandoCodigo" (click)="confirmarCodigo()">
+        {{ verificandoCodigo ? 'Verificando...' : 'Verificar y confirmar pedido' }}
+      </button>
+    
+      <button class="btn-reenviar" [disabled]="cooldownReenvio > 0 || enviandoCodigo" (click)="reenviarCodigo()">
+        {{ cooldownReenvio > 0 ? 'Reenviar código (' + cooldownReenvio + 's)' : 'Reenviar código' }}
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="paso === 'confirmacion'">
+      <div class="confirmacion">
+        <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <h2>¡Pedido recibido!</h2>
+        <p *ngIf="metodoPago === 'transferencia'">
+          Envíanos tu comprobante de transferencia por WhatsApp para confirmar tu pedido.
+        </p>
+        <p *ngIf="metodoPago === 'efectivo'">
+          Prepararemos tu pedido. Recuerda que el pago es en efectivo al recibirlo.
+        </p>
+
+        <a class="btn-whatsapp" [href]="whatsappUrl" target="_blank" (click)="finalizarCompra()">
+          <i class="fa-brands fa-whatsapp"></i> Enviar comprobante / Confirmar por WhatsApp
+        </a>
+
+        <button class="btn-cerrar" (click)="finalizarCompra()">Cerrar</button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
+
+<!-- CONFIRMAR SALIDA SIN TERMINAR EL PEDIDO -->
+<div class="modal-backdrop confirm-backdrop" *ngIf="mostrarConfirmacionCancelar" (click)="seguirEnCheckout()">
+  <div class="modal confirm-cancelar" (click)="$event.stopPropagation()">
+    <div class="warn-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <h3>¿Salir sin terminar tu pedido?</h3>
+    <p>Vas a perder los datos que ya ingresaste. Tu carrito se mantiene, pero tendrás que volver a llenar el formulario.</p>
+    <div class="modal-acciones-cancelar">
+      <button class="btn-seguir" (click)="seguirEnCheckout()">Seguir con mi pedido</button>
+      <button class="btn-salir" (click)="confirmarCancelarCheckout()">Sí, salir</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRMAR VACIAR CARRITO -->
+<div class="modal-backdrop confirm-backdrop" *ngIf="mostrarConfirmacionVaciar" (click)="cancelarVaciarCarrito()">
+  <div class="modal confirm-cancelar" (click)="$event.stopPropagation()">
+    <div class="warn-icon"><i class="fa-solid fa-trash"></i></div>
+    <h3>¿Vaciar tu carrito?</h3>
+    <p>Se eliminarán todos los productos que agregaste. Esta acción no se puede deshacer.</p>
+    <div class="modal-acciones-cancelar">
+      <button class="btn-seguir" (click)="cancelarVaciarCarrito()">Conservar mi carrito</button>
+      <button class="btn-salir" (click)="vaciarCarrito()">Sí, vaciar</button>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

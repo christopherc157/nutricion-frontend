@@ -1,0 +1,99 @@
+<div class="config-header">
+    <div>
+      <h2>Pacientes</h2>
+      <p>Lleva el seguimiento del progreso de cada paciente</p>
+    </div>
+    <button class="btn-primary" (click)="abrirNuevo()">
+      <i class="fa-solid fa-user-plus"></i> Nuevo paciente
+    </button>
+  </div>
+  
+  <!-- SUGERENCIAS DESDE CITAS -->
+  <div class="sugeridos-bloque" *ngIf="sugeridos.length">
+    <p class="sugeridos-titulo">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      Personas que agendaron cita y todavía no son pacientes registrados
+    </p>
+    <div class="sugeridos-lista">
+      <div class="sugerido-chip" *ngFor="let s of sugeridos">
+        <div>
+          <p class="sugerido-nombre">{{ s.nombre }}</p>
+          <p class="sugerido-correo">{{ s.correo }}</p>
+        </div>
+        <button (click)="convertirSugerido(s)">
+          <i class="fa-solid fa-plus"></i> Agregar
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <input
+    class="buscador"
+    type="text"
+    placeholder="Buscar por nombre, correo o teléfono..."
+    [(ngModel)]="filtro"
+  >
+  
+  <div class="pacientes-grid" *ngIf="pacientesFiltrados.length; else sinPacientes">
+    <a
+      class="paciente-card"
+      *ngFor="let p of pacientesFiltrados"
+      [routerLink]="['/config/pacientes', p._id]"
+    >
+      <div class="paciente-avatar">{{ p.nombre.charAt(0) }}</div>
+      <div class="paciente-info">
+        <h4>{{ p.nombre }}</h4>
+        <p><i class="fa-solid fa-envelope"></i> {{ p.correo }}</p>
+        <p><i class="fa-solid fa-phone"></i> {{ p.telefono }}</p>
+        <span class="paciente-objetivo" *ngIf="p.objetivo">{{ p.objetivo }}</span>
+      </div>
+      <i class="fa-solid fa-chevron-right paciente-flecha"></i>
+    </a>
+  </div>
+  
+  <ng-template #sinPacientes>
+    <div class="sin-datos">Todavía no tienes pacientes registrados.</div>
+  </ng-template>
+  
+  <!-- MODAL NUEVO PACIENTE -->
+  <div class="modal-backdrop" *ngIf="mostrarModal" (click)="mostrarModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+  
+      <h2>Nuevo paciente</h2>
+  
+      <div class="input-group">
+        <label>Nombre completo</label>
+        <input type="text" [(ngModel)]="form.nombre">
+      </div>
+  
+      <div class="input-group">
+        <label>Correo electrónico</label>
+        <input type="email" [(ngModel)]="form.correo">
+      </div>
+  
+      <div class="input-group">
+        <label>Teléfono</label>
+        <input type="tel" [(ngModel)]="form.telefono">
+      </div>
+  
+      <div class="input-group">
+        <label>Fecha de primera consulta</label>
+        <input type="date" [(ngModel)]="form.fechaPrimeraConsulta">
+      </div>
+  
+      <div class="input-group">
+        <label>Objetivo</label>
+        <input type="text" [(ngModel)]="form.objetivo" placeholder="Ej. Bajar de peso, salud hormonal...">
+      </div>
+  
+      <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+  
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarModal = false">Cancelar</button>
+        <button class="btn-primary" [disabled]="guardando" (click)="guardar()">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+  
+    </div>
+  </div>

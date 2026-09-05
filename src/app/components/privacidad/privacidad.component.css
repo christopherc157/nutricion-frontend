@@ -1,0 +1,111 @@
+.privacidad-page {
+    max-width: 780px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  
+  .privacidad-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  
+  .privacidad-header .subtitle {
+    color: var(--pink-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--pink-light);
+    padding: 4px 15px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  
+  .privacidad-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+  }
+  
+  .fecha {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  
+  .privacidad-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 36px;
+    border-left: 6px solid var(--pink-primary);
+  }
+  
+  .privacidad-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--text-dark);
+    margin: 26px 0 10px;
+  }
+  
+  .privacidad-card h2:first-child {
+    margin-top: 0;
+  }
+  
+  .privacidad-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  
+  .privacidad-card ul {
+    margin: 0 0 10px;
+    padding-left: 20px;
+  }
+  
+  .privacidad-card ul li {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  
+  .aviso-sensible {
+    display: flex;
+    gap: 12px;
+    background: var(--pink-light);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin: 14px 0;
+  }
+  
+  .aviso-sensible i {
+    color: var(--pink-primary);
+    font-size: 1.1rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  .aviso-sensible p {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 13.5px;
+  }
+  
+  .contacto-final {
+    background: var(--green-light);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-top: 28px;
+    text-align: center;
+  }
+  
+  .contacto-final p {
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+  
+  .contacto-final p:last-child {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 0;
+  }

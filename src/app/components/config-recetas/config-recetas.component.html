@@ -1,0 +1,160 @@
+<div class="config-header">
+  <div>
+    <h2>Recetas</h2>
+    <p>Administra el catálogo de recetas visible para tus visitantes</p>
+  </div>
+  <div class="header-acciones">
+    <button class="btn-secundario-header" (click)="abrirGestionCategorias()">
+      <i class="fa-solid fa-tags"></i> Categorías
+    </button>
+    <button class="btn-primary" (click)="nuevo()">
+      <i class="fa-solid fa-plus"></i> Nueva receta
+    </button>
+  </div>
+</div>
+  
+  <div class="recetas-admin-grid" *ngIf="recetas.length; else vacio">
+    <div class="receta-admin-card" *ngFor="let r of recetas">
+      <div class="receta-admin-imagen">
+        <img *ngIf="r.foto" [src]="imagenUrl(r)">
+        <i *ngIf="!r.foto" class="fa-solid fa-utensils"></i>
+        <span class="badge-estado" [class.activo]="r.activo">{{ r.activo ? 'Visible' : 'Oculta' }}</span>
+      </div>
+      <div class="receta-admin-info">
+        <h4>{{ r.nombre }}</h4>
+        <span class="receta-admin-categoria">{{ nombreCategoriaDe(r) }}</span>
+        <p class="receta-admin-promedio"><i class="fa-solid fa-star"></i> {{ promedio(r) }}</p>
+        <div class="receta-admin-acciones">
+          <button (click)="editar(r)"><i class="fa-solid fa-pen"></i> Editar</button>
+          <button class="danger" (click)="confirmarEliminar(r)"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #vacio>
+    <div class="sin-datos">Todavía no has agregado recetas.</div>
+  </ng-template>
+  
+  <!-- MODAL FORM -->
+  <div class="modal-backdrop" *ngIf="mostrarModal" (click)="mostrarModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+  
+      <h2>{{ editando ? 'Editar receta' : 'Nueva receta' }}</h2>
+  
+      <div class="foto-upload">
+        <label class="foto-picker">
+          <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)">
+          <img *ngIf="previewFoto" [src]="previewFoto">
+          <div *ngIf="!previewFoto" class="foto-placeholder"><i class="fa-solid fa-camera"></i></div>
+        </label>
+      </div>
+  
+      <div class="input-group">
+        <label>Nombre de la receta</label>
+        <input type="text" [(ngModel)]="form.nombre">
+      </div>
+  
+      <div class="input-group">
+        <label>Descripción corta</label>
+        <textarea rows="2" [(ngModel)]="form.descripcion"></textarea>
+      </div>
+      <div class="input-group">
+        <label>Categoría</label>
+        <select [(ngModel)]="form.categoriaId">
+          <option value="">Sin categoría</option>
+          <option *ngFor="let c of categorias" [value]="c._id">{{ c.nombre }}</option>
+        </select>
+      </div>
+  
+      <div class="input-row">
+        <div class="input-group">
+          <label>Tiempo de preparación</label>
+          <input type="text" [(ngModel)]="form.tiempoPreparacion" placeholder="Ej. 20 min">
+        </div>
+        <div class="input-group">
+          <label>Porciones</label>
+          <input type="text" [(ngModel)]="form.porciones" placeholder="Ej. 2 porciones">
+        </div>
+      </div>
+  
+      <div class="input-group">
+        <label>Ingredientes (uno por línea)</label>
+        <textarea rows="5" [(ngModel)]="ingredientesTexto" placeholder="1 taza de avena&#10;2 plátanos&#10;1 cucharada de miel"></textarea>
+      </div>
+  
+      <div class="input-group">
+        <label>Pasos de preparación (uno por línea)</label>
+        <textarea rows="5" [(ngModel)]="pasosTexto" placeholder="Mezcla los ingredientes secos&#10;Agrega el plátano machacado&#10;Hornea 20 minutos"></textarea>
+      </div>
+  
+      <div class="input-group toggle-group" *ngIf="editando">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.activo">
+          Visible para los visitantes
+        </label>
+      </div>
+  
+      <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+  
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarModal = false">Cancelar</button>
+        <button class="btn-primary" [disabled]="guardando" (click)="guardar()">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+  
+    </div>
+  </div>
+
+  <!-- MODAL GESTIÓN DE CATEGORÍAS -->
+<div class="modal-backdrop" *ngIf="mostrarModalCategorias" (click)="mostrarModalCategorias = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <h2>Categorías de recetas</h2>
+
+    <div class="categoria-nueva">
+      <input type="text" [(ngModel)]="nuevaCategoriaNombre" placeholder="Ej. Desayunos" (keyup.enter)="crearCategoria()">
+      <button (click)="crearCategoria()"><i class="fa-solid fa-plus"></i></button>
+    </div>
+
+    <div class="categorias-lista">
+      <div class="categoria-item" *ngFor="let c of categorias">
+
+        <ng-container *ngIf="categoriaEditandoId !== c._id; else edicion">
+          <span>{{ c.nombre }}</span>
+          <div class="categoria-acciones">
+            <button (click)="empezarEdicionCategoria(c)"><i class="fa-solid fa-pen"></i></button>
+            <button class="danger" (click)="eliminarCategoria(c)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </ng-container>
+
+        <ng-template #edicion>
+          <input type="text" [(ngModel)]="categoriaEditandoNombre" (keyup.enter)="guardarEdicionCategoria()">
+          <div class="categoria-acciones">
+            <button (click)="guardarEdicionCategoria()"><i class="fa-solid fa-check"></i></button>
+          </div>
+        </ng-template>
+
+      </div>
+
+      <p class="sin-datos-chico" *ngIf="!categorias.length">Todavía no tienes categorías creadas.</p>
+    </div>
+
+    <button class="btn-secundario" (click)="mostrarModalCategorias = false">Cerrar</button>
+
+  </div>
+</div>
+  
+  <!-- CONFIRMAR ELIMINAR -->
+  <div class="modal-backdrop" *ngIf="mostrarConfirmacion" (click)="mostrarConfirmacion = false">
+    <div class="modal confirm" (click)="$event.stopPropagation()">
+      <div class="warn-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3>¿Eliminar receta?</h3>
+      <p>Estás por eliminar <strong>{{ recetaAEliminar?.nombre }}</strong>. Esta acción no se puede deshacer.</p>
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarConfirmacion = false">Cancelar</button>
+        <button class="btn-danger" (click)="eliminarConfirmado()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>

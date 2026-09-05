@@ -1,0 +1,650 @@
+.agenda-page {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  
+  .agenda-intro {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  
+  .agenda-intro .subtitle {
+    color: var(--pink-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: var(--pink-light);
+    padding: 4px 15px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  
+  .agenda-intro h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+  }
+  
+  .agenda-intro p {
+    color: var(--text-muted);
+  }
+  
+  /* CALENDARIO */
+  /* CALENDARIO */
+.calendario-card {
+  background: var(--white);
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.06);
+  padding: 32px;
+  border-left: 6px solid var(--pink-primary);
+  animation: apareceCard .4s ease;
+}
+
+@keyframes apareceCard {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.calendario-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.mes-titulo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calendario-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  color: var(--text-dark);
+}
+
+.btn-hoy {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn-hoy:hover {
+  border-color: var(--pink-primary);
+  color: var(--pink-primary);
+  background: var(--pink-light);
+}
+
+.nav-mes {
+  background: var(--pink-light);
+  color: var(--pink-primary);
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: .2s;
+  flex-shrink: 0;
+}
+
+.nav-mes:hover {
+  background: var(--pink-primary);
+  color: white;
+  transform: scale(1.05);
+}
+
+.dias-semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 10px;
+}
+
+.grid-calendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.celda {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  transition: .2s;
+}
+
+.celda.vacia {
+  visibility: hidden;
+}
+
+.celda.hoy {
+  box-shadow: inset 0 0 0 2px var(--green-accent);
+  font-weight: 700;
+}
+
+.celda.disponible {
+  background: var(--pink-light);
+  color: var(--pink-primary);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.celda.disponible:hover {
+  background: var(--pink-primary);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(216, 27, 96, 0.3);
+}
+
+.celda.disponible.hoy {
+  box-shadow: inset 0 0 0 2px var(--green-accent), 0 4px 10px rgba(216, 27, 96, 0.2);
+}
+
+.celda.deshabilitada {
+  color: #d8dee2;
+}
+
+.leyenda {
+  display: flex;
+  gap: 22px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--border-color);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.leyenda span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.punto.disponible {
+  background: var(--pink-primary);
+}
+
+.punto.ocupado {
+  background: #d8dee2;
+}
+  
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+    animation: apareceOverlay .25s ease;
+  }
+  
+  @keyframes apareceOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .modal {
+    background: var(--white);
+    border-radius: 26px;
+    padding: 34px;
+    width: 440px;
+    max-width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: apareceModal .3s ease;
+    box-shadow: 0 25px 60px rgba(0,0,0,.2);
+  }
+  
+  @keyframes apareceModal {
+    from { opacity: 0; transform: scale(.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--text-dark);
+    margin-bottom: 18px;
+  }
+  
+  .volver-btn {
+    background: none;
+    border: none;
+    color: var(--pink-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 14px;
+    padding: 0;
+  }
+  
+  /* HORAS */
+  /* HEADER DEL PASO */
+.paso-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.paso-icono {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--pink-primary), var(--pink-hover));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.paso-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pink-primary);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.paso-header h2 {
+  margin: 2px 0 0 !important;
+  font-size: 1.1rem;
+}
+
+.paso-subtitulo {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+/* BLOQUES MAÑANA / TARDE */
+.horas-bloque {
+  margin-bottom: 20px;
+}
+
+.horas-bloque-titulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 10px;
+}
+
+.horas-bloque-titulo i {
+  color: var(--pink-primary);
+}
+
+/* BOTONES DE HORA */
+.horas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.hora-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  background: var(--bg-light);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: .2s;
+}
+
+.hora-btn i {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.hora-btn:hover:not(.ocupada) {
+  border-color: var(--pink-primary);
+  background: var(--pink-light);
+  color: var(--pink-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(216, 27, 96, 0.18);
+}
+
+.hora-btn:hover:not(.ocupada) i {
+  color: var(--pink-primary);
+}
+
+.hora-btn.ocupada {
+  opacity: .45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* ESTADO SIN HORARIOS */
+.sin-horas {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-muted);
+}
+
+.sin-horas i {
+  font-size: 32px;
+  color: var(--pink-primary);
+  margin-bottom: 10px;
+  display: block;
+}
+  
+  /* FORM */
+  .input-group {
+    margin-bottom: 16px;
+  }
+  
+  .input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+  
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    font-size: 14px;
+    background: var(--bg-light);
+    color: var(--text-dark);
+  }
+  
+  .input-group input:focus,
+  .input-group select:focus,
+  .input-group textarea:focus {
+    outline: none;
+    border-color: var(--pink-primary);
+    background: var(--white);
+    color: var(--text-dark);
+  }
+  
+  .input-group textarea {
+    resize: vertical;
+  }
+  
+  .btn-confirmar {
+    width: 100%;
+    padding: 13px;
+    margin-top: 6px;
+    background: linear-gradient(135deg, var(--pink-primary), var(--pink-hover));
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(216, 27, 96, 0.3);
+  }
+  
+  .btn-confirmar:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+  }
+  
+  .error-text {
+    color: var(--pink-primary);
+    background: var(--pink-light);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  
+  /* CONFIRMACIÓN */
+  .confirmacion {
+    text-align: center;
+  }
+  
+  .check-icon {
+    font-size: 48px;
+    color: var(--green-accent);
+    margin-bottom: 12px;
+  }
+  
+  .confirmacion p {
+    color: var(--text-muted);
+    margin-bottom: 22px;
+  }
+  
+  .btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #25D366;
+    color: white;
+    padding: 13px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .btn-cerrar {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 30px;
+    color: var(--text-dark);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* BOTÓN CERRAR (X) */
+.modal {
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-light);
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .2s;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: var(--pink-light);
+  color: var(--pink-primary);
+}
+
+/* CONFIRMACIÓN DE SALIDA */
+.confirm-backdrop {
+  z-index: 2100;
+}
+
+.confirm-cancelar {
+  text-align: center;
+  width: 380px;
+}
+
+.confirm-cancelar .warn-icon {
+  font-size: 40px;
+  color: #f59e0b;
+  margin-bottom: 12px;
+}
+
+.confirm-cancelar h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+
+.confirm-cancelar p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+.modal-acciones-cancelar {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-seguir {
+  flex: 1;
+  padding: 12px;
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(135deg, var(--pink-primary), var(--pink-hover));
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-salir {
+  flex: 1;
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid var(--border-color);
+  background: white;
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-salir:hover {
+  background: var(--bg-light);
+}
+
+.codigo-input {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 10px;
+  padding: 14px !important;
+  color: var(--text-dark);
+}
+
+.btn-reenviar {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: var(--pink-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-reenviar:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.check-privacidad {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.check-privacidad input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--pink-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.check-privacidad a {
+  color: var(--pink-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.check-privacidad a:hover {
+  text-decoration: underline;
+}
+
+.hold-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--pink-light);
+  color: var(--pink-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+}
+
+.hold-timer.urgente {
+  background: #fef3c7;
+  color: #b45309;
+  animation: parpadeo 1s infinite;
+}
+
+@keyframes parpadeo {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}

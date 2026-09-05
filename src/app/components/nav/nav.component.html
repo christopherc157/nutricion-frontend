@@ -1,0 +1,73 @@
+<header class="topbar">
+  <div class="topbar-inner">
+
+    <a routerLink="/" class="logo-brand">
+      <img src="assets/logo.png" alt="LN Brenda Lagunas" class="logo-badge-img" />
+      <div class="logo-text">
+        <h1>LN Brenda Lagunas</h1>
+        <span>Nutrición &amp; Bienestar</span>
+      </div>
+    </a>
+
+    <nav class="nav-links-desktop">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Inicio</a>
+      <a routerLink="/agenda" routerLinkActive="active">Agendar Cita</a>
+      <a routerLink="/tienda" routerLinkActive="active">Tienda</a>
+      <a routerLink="/recetas" routerLinkActive="active">Recetas</a>
+      <a routerLink="/productos-recomendados" routerLinkActive="active">Recomendados</a>
+    </nav>
+
+    <div class="topbar-right">
+      <button class="theme-btn" (click)="theme.toggleTema()" [attr.aria-label]="theme.modoOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+        <i class="fa-solid" [class.fa-moon]="!theme.modoOscuro" [class.fa-sun]="theme.modoOscuro"></i>
+      </button>
+
+      <a routerLink="/tienda" class="cart-btn">
+        <i class="fa-solid fa-cart-shopping"></i>
+      </a>
+
+      <button class="menu-btn-mobile" (click)="abrirMenu()" aria-label="Abrir menú">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<!-- OVERLAY OSCURO DETRÁS DEL CAJÓN (solo pantallas chicas) -->
+<div class="drawer-overlay" *ngIf="menuAbierto" (click)="cerrarMenu()"></div>
+
+<!-- MENÚ LATERAL (solo pantallas chicas) -->
+<nav class="drawer" [class.abierto]="menuAbierto">
+  <button class="drawer-close" (click)="cerrarMenu()">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
+  <ul>
+    <li>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="cerrarMenu()">
+        Inicio
+      </a>
+    </li>
+    <li>
+      <a routerLink="/agenda" routerLinkActive="active" (click)="cerrarMenu()">
+        Agendar Cita
+      </a>
+    </li>
+    <li>
+      <a routerLink="/tienda" routerLinkActive="active" (click)="cerrarMenu()">
+        Tienda
+      </a>
+    </li>
+    <li>
+      <a routerLink="/recetas" routerLinkActive="active" (click)="cerrarMenu()">
+        Recetas
+      </a>
+    </li>
+    <li>
+      <a routerLink="/productos-recomendados" routerLinkActive="active" (click)="cerrarMenu()">
+        Productos Recomendados
+      </a>
+    </li>
+  </ul>
+</nav>

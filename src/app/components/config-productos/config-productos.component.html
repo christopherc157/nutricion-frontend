@@ -1,0 +1,178 @@
+<div class="config-header">
+  <div>
+    <h2>Productos</h2>
+    <p>Administra el catálogo de tu tienda</p>
+    <span class="contador-total">{{ cantidadTotal }} {{ cantidadTotal === 1 ? 'producto' : 'productos' }} en total</span>
+  </div>
+  <div class="header-acciones">
+    <button class="btn-secundario-header" (click)="abrirGestionCategorias()">
+      <i class="fa-solid fa-tags"></i> Categorías
+    </button>
+    <button class="btn-primary" (click)="nuevo()">
+      <i class="fa-solid fa-plus"></i> Nuevo producto
+    </button>
+  </div>
+</div>
+  
+  <div class="productos-table" *ngIf="productos.length; else vacio">
+    <div class="tabla-row tabla-head">
+      <span>Foto</span>
+      <span>Nombre</span>
+      <span>Precio</span>
+      <span>Stock</span>
+      <span>Estado</span>
+      <span>Acciones</span>
+    </div>
+  
+    <div class="tabla-row" *ngFor="let p of productos">
+      <span>
+        <div class="mini-foto">
+          <img *ngIf="p.foto" [src]="imagenUrl(p)">
+          <i *ngIf="!p.foto" class="fa-solid fa-jar"></i>
+        </div>
+      </span>
+      <span>
+        {{ p.nombre }}
+        <br>
+        <small class="producto-admin-categoria">{{ nombreCategoriaDe(p) }}</small>
+      </span>
+      <span>${{ p.precio }}</span>
+      <span [class.stock-bajo]="p.stock <= 5 && p.stock > 0" [class.stock-agotado]="p.stock === 0">
+        {{ p.stock }}
+        <i class="fa-solid fa-triangle-exclamation" *ngIf="p.stock <= 5"></i>
+      </span>
+      <span>
+        <span class="badge" [class.activo]="p.activo">{{ p.activo ? 'Activo' : 'Inactivo' }}</span>
+        <span class="badge-destacado" *ngIf="p.destacado"><i class="fa-solid fa-star"></i> Destacado</span>
+      </span>
+      <span class="acciones">
+        <button (click)="editar(p)"><i class="fa-solid fa-pen"></i></button>
+        <button class="danger" (click)="confirmarEliminar(p)"><i class="fa-solid fa-trash"></i></button>
+      </span>
+    </div>
+  </div>
+  
+  <ng-template #vacio>
+    <div class="sin-datos">Todavía no has agregado productos.</div>
+  </ng-template>
+  
+  <!-- MODAL FORM -->
+  <div class="modal-backdrop" *ngIf="mostrarModal" (click)="mostrarModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+  
+      <h2>{{ editando ? 'Editar producto' : 'Nuevo producto' }}</h2>
+  
+      <div class="foto-upload">
+        <label class="foto-picker">
+          <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)">
+          <img *ngIf="previewFoto" [src]="previewFoto">
+          <div *ngIf="!previewFoto" class="foto-placeholder"><i class="fa-solid fa-camera"></i></div>
+        </label>
+      </div>
+  
+      <div class="input-group">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="form.nombre">
+      </div>
+  
+      <div class="input-group">
+        <label>Descripción</label>
+        <textarea rows="2" [(ngModel)]="form.descripcion"></textarea>
+      </div>
+      <div class="input-group">
+        <label>Categoría</label>
+        <select [(ngModel)]="form.categoriaId">
+          <option value="">Sin categoría</option>
+          <option *ngFor="let c of categorias" [value]="c._id">{{ c.nombre }}</option>
+        </select>
+      </div>
+  
+      <div class="input-row">
+        <div class="input-group">
+          <label>Precio (MXN)</label>
+          <input type="number" [(ngModel)]="form.precio" min="0">
+        </div>
+  
+        <div class="input-group">
+          <label>Stock</label>
+          <input type="number" [(ngModel)]="form.stock" min="0">
+        </div>
+      </div>
+  
+      <div class="input-group toggle-group" *ngIf="editando">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.activo">
+          Producto visible en la tienda
+        </label>
+      </div>
+
+      <div class="input-group toggle-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.destacado">
+          Mostrar en "Productos destacados" del Inicio
+        </label>
+      </div>
+  
+      <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+  
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarModal = false">Cancelar</button>
+        <button class="btn-primary" [disabled]="guardando" (click)="guardar()">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+  
+    </div>
+  </div>
+
+  <!-- MODAL GESTIÓN DE CATEGORÍAS -->
+<div class="modal-backdrop" *ngIf="mostrarModalCategorias" (click)="mostrarModalCategorias = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <h2>Categorías de productos</h2>
+
+    <div class="categoria-nueva">
+      <input type="text" [(ngModel)]="nuevaCategoriaNombre" placeholder="Ej. Suplementos alimenticios" (keyup.enter)="crearCategoria()">
+      <button (click)="crearCategoria()"><i class="fa-solid fa-plus"></i></button>
+    </div>
+
+    <div class="categorias-lista">
+      <div class="categoria-item" *ngFor="let c of categorias">
+
+        <ng-container *ngIf="categoriaEditandoId !== c._id; else edicion">
+          <span>{{ c.nombre }}</span>
+          <div class="categoria-acciones">
+            <button (click)="empezarEdicionCategoria(c)"><i class="fa-solid fa-pen"></i></button>
+            <button class="danger" (click)="eliminarCategoria(c)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </ng-container>
+
+        <ng-template #edicion>
+          <input type="text" [(ngModel)]="categoriaEditandoNombre" (keyup.enter)="guardarEdicionCategoria()">
+          <div class="categoria-acciones">
+            <button (click)="guardarEdicionCategoria()"><i class="fa-solid fa-check"></i></button>
+          </div>
+        </ng-template>
+
+      </div>
+
+      <p class="sin-datos-chico" *ngIf="!categorias.length">Todavía no tienes categorías creadas.</p>
+    </div>
+
+    <button class="btn-secundario" (click)="mostrarModalCategorias = false">Cerrar</button>
+
+  </div>
+</div>
+  
+  <!-- CONFIRMAR ELIMINAR -->
+  <div class="modal-backdrop" *ngIf="mostrarConfirmacion" (click)="mostrarConfirmacion = false">
+    <div class="modal confirm" (click)="$event.stopPropagation()">
+      <div class="warn-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3>¿Eliminar producto?</h3>
+      <p>Estás por eliminar <strong>{{ productoAEliminar?.nombre }}</strong>. Esta acción no se puede deshacer.</p>
+      <div class="modal-acciones">
+        <button class="btn-secundario" (click)="mostrarConfirmacion = false">Cancelar</button>
+        <button class="btn-danger" (click)="eliminarConfirmado()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>

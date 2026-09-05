@@ -1,1 +1,58 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+    --pink-primary: #d81b60;
+    --pink-hover: #c2185b;
+    --pink-light: #fce4ec;
+    --green-accent: #2e7d32;
+    --green-hover: #1b5e20;
+    --green-light: #e8f5e9;
+    --white: #ffffff;
+    --bg-light: #f9fbf9;
+    --text-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --border-color: #e0e0e0;
+    --shadow: 0 4px 15px rgba(0,0,0,0.08);
+    --radius: 12px;
+  }
+
+  .dark-theme {
+    --pink-primary: #ec4899;
+    --pink-hover: #f472b6;
+    --pink-light: #3a1f2b;
+    --green-accent: #4ade80;
+    --green-hover: #86efac;
+    --green-light: #1a2e22;
+    --white: #1e2530;
+    --bg-light: #14181f;
+    --text-dark: #e5e7eb;
+    --text-muted: #94a3b8;
+    --border-color: #2d3542;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --radius: 12px;
+  }
+  
+  .dark-theme body,
+  .dark-theme {
+    background: var(--bg-light);
+    color: var(--text-dark);
+  }
+  
+  .dark-theme img {
+    opacity: .92;
+  }
+  
+  * {
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  body {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+  }

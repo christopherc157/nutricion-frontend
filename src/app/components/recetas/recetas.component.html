@@ -1,0 +1,121 @@
+<app-nav></app-nav>
+
+<app-loading *ngIf="cargando" mensaje="Cargando recetas..."></app-loading>
+
+<section class="recetas-page" *ngIf="!cargando">
+
+  <div class="recetas-intro">
+    <span class="subtitle">Cocina rico y saludable</span>
+    <h2>Catálogo de recetas</h2>
+    <p>Ideas fáciles de preparar, pensadas para acompañar tu proceso.</p>
+  </div>
+  
+  <div class="filtros-categoria" *ngIf="categorias.length">
+    <button
+      class="filtro-pill"
+      [class.activo]="categoriaSeleccionada === null"
+      (click)="seleccionarCategoria(null)"
+    >
+      Todas
+    </button>
+    <button
+      class="filtro-pill"
+      *ngFor="let c of categorias"
+      [class.activo]="categoriaSeleccionada === c._id"
+      (click)="seleccionarCategoria(c._id)"
+    >
+      {{ c.nombre }}
+    </button>
+  </div>
+  
+  <div class="recetas-grid" *ngIf="recetasFiltradas.length; else sinRecetas">
+    <div class="receta-card" *ngFor="let r of recetasFiltradas" (click)="abrirDetalle(r)">
+      <div class="receta-imagen">
+        <img *ngIf="r.foto" [src]="imagenUrl(r)" [alt]="r.nombre">
+        <div class="sin-imagen" *ngIf="!r.foto"><i class="fa-solid fa-utensils"></i></div>
+      </div>
+      <div class="receta-info">
+        <h4>{{ r.nombre }}</h4>
+        <p>{{ r.descripcion }}</p>
+
+        <span class="receta-categoria" *ngIf="nombreCategoria(r)">{{ nombreCategoria(r) }}</span>
+        
+        <div class="receta-meta">
+          <span *ngIf="r.tiempoPreparacion"><i class="fa-regular fa-clock"></i> {{ r.tiempoPreparacion }}</span>
+          <span *ngIf="r.porciones"><i class="fa-solid fa-bowl-food"></i> {{ r.porciones }}</span>
+        </div>
+
+        <div class="receta-estrellas">
+          <i class="fa-solid fa-star" *ngFor="let e of estrellasLlenas(r)"></i>
+          <i class="fa-regular fa-star" *ngFor="let e of estrellasVacias(r)"></i>
+          <span class="receta-cantidad" *ngIf="r.cantidadCalificaciones">({{ r.cantidadCalificaciones }})</span>
+          <span class="receta-cantidad" *ngIf="!r.cantidadCalificaciones">Sin calificar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #sinRecetas>
+    <div class="sin-datos">Todavía no hay recetas publicadas.</div>
+  </ng-template>
+
+</section>
+
+<!-- MODAL DETALLE -->
+<div class="modal-backdrop" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <button class="modal-close" (click)="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
+
+    <div class="detalle-imagen" *ngIf="recetaSeleccionada?.foto">
+      <img [src]="imagenUrl(recetaSeleccionada!)" [alt]="recetaSeleccionada?.nombre">
+    </div>
+
+    <div class="detalle-body">
+      <h2>{{ recetaSeleccionada?.nombre }}</h2>
+      <p class="detalle-desc">{{ recetaSeleccionada?.descripcion }}</p>
+
+      <div class="receta-meta">
+        <span *ngIf="recetaSeleccionada?.tiempoPreparacion"><i class="fa-regular fa-clock"></i> {{ recetaSeleccionada?.tiempoPreparacion }}</span>
+        <span *ngIf="recetaSeleccionada?.porciones"><i class="fa-solid fa-bowl-food"></i> {{ recetaSeleccionada?.porciones }}</span>
+      </div>
+
+      <div class="detalle-seccion" *ngIf="recetaSeleccionada?.ingredientes?.length">
+        <h4><i class="fa-solid fa-carrot"></i> Ingredientes</h4>
+        <ul>
+          <li *ngFor="let ing of recetaSeleccionada?.ingredientes">{{ ing }}</li>
+        </ul>
+      </div>
+
+      <div class="detalle-seccion" *ngIf="recetaSeleccionada?.pasos?.length">
+        <h4><i class="fa-solid fa-list-ol"></i> Preparación</h4>
+        <ol>
+          <li *ngFor="let paso of recetaSeleccionada?.pasos">{{ paso }}</li>
+        </ol>
+      </div>
+
+      <div class="calificar-seccion">
+        <p class="calificar-titulo" *ngIf="!yaCalificoActual">¿Qué te pareció esta receta?</p>
+        <p class="calificar-titulo gracias" *ngIf="yaCalificoActual">¡Gracias por tu calificación!</p>
+
+        <div class="estrellas-interactivas" [class.deshabilitado]="yaCalificoActual">
+          <i
+            *ngFor="let n of [1,2,3,4,5]"
+            class="fa-solid fa-star"
+            [class.hover]="!yaCalificoActual && n <= puntuacionHover"
+            (mouseenter)="!yaCalificoActual && (puntuacionHover = n)"
+            (mouseleave)="!yaCalificoActual && (puntuacionHover = 0)"
+            (click)="calificar(n)"
+          ></i>
+        </div>
+
+        <p class="calificar-promedio" *ngIf="recetaSeleccionada && recetaSeleccionada.cantidadCalificaciones">
+          Promedio: {{ promedio(recetaSeleccionada).toFixed(1) }} / 5 ({{ recetaSeleccionada.cantidadCalificaciones }} calificaciones)
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-footer></app-footer>
