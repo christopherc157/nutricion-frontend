@@ -79,9 +79,8 @@ export class InicioComponent implements OnInit, OnDestroy {
     this.inicioService.obtenerConfig().subscribe({
       next: (data) => {
         this.config = data;
-        this.imagenUrl = data.imagen ? `${this.backendBase}${data.imagen}` : '';
-    
-        this.galeriaUrls = (data.galeriaHero || []).map(img => `${this.backendBase}${img}`);
+        this.imagenUrl = data.imagen || '';
+        this.galeriaUrls = data.galeriaHero || [];
     
         if (this.galeriaUrls.length > 1) {
           this.iniciarCarrusel();

@@ -137,7 +137,7 @@ export class TiendaComponent implements OnInit {
   }
 
   imagenUrl(producto: Producto): string {
-    return producto.foto ? `${this.backendBase}${producto.foto}` : '';
+    return producto.foto || '';
   }
 
   get productosFiltrados(): Producto[] {

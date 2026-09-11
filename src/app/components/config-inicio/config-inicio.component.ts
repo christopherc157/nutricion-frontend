@@ -41,7 +41,7 @@ export class ConfigInicioComponent implements OnInit {
         this.form.titulo = data.titulo || '';
         this.form.subtitulo = data.subtitulo || '';
         this.form.descripcion = data.descripcion || '';
-        this.previewImagen = data.imagen ? `${this.backendBase}${data.imagen}` : '';
+        this.previewImagen = data.imagen || '';
         this.galeriaHero = data.galeriaHero || [];
       },
       error: () => {}
@@ -91,7 +91,7 @@ export class ConfigInicioComponent implements OnInit {
   }
   
   imagenGaleriaUrl(url: string): string {
-    return `${this.backendBase}${url}`;
+    return url;
   }
 
   guardar() {

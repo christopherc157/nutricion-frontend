@@ -1,4 +1,4 @@
 export const environment = {
-    production: true,
-    apiUrl: 'https://nutricion-brenda-api.onrender.com/api'
-  };
+  production: true,
+  apiUrl: 'https://nutricion-backend-nine.vercel.app/api'
+};

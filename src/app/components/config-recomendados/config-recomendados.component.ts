@@ -37,7 +37,7 @@ export class ConfigRecomendadosComponent implements OnInit {
         this.form.titulo = data.titulo || 'Productos Recomendados';
         this.form.descripcion = data.descripcion || '';
         this.nombreArchivoActual = data.nombreArchivoOriginal || '';
-        this.pdfUrlActual = data.archivoPdf ? `${this.backendBase}${data.archivoPdf}` : '';
+        this.pdfUrlActual = data.archivoPdf || '';
         this.fechaActualizacion = data.actualizadoEn
           ? new Date(data.actualizadoEn).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })
           : '';
@@ -80,7 +80,7 @@ export class ConfigRecomendadosComponent implements OnInit {
         this.mensajeExito = 'Los cambios se guardaron correctamente';
         this.archivoPdf = null;
         this.nombreArchivoActual = data.nombreArchivoOriginal || this.nombreArchivoActual;
-        this.pdfUrlActual = data.archivoPdf ? `${this.backendBase}${data.archivoPdf}` : this.pdfUrlActual;
+        this.pdfUrlActual = data.archivoPdf || this.pdfUrlActual;
 
         setTimeout(() => this.mensajeExito = '', 3000);
       },

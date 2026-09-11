@@ -39,7 +39,7 @@ export class ProductosRecomendadosComponent implements OnInit {
         this.cargando = false;
 
         if (data.archivoPdf) {
-          this.pdfUrl = `${this.backendBase}${data.archivoPdf}`;
+          this.pdfUrl = data.archivoPdf;
           this.procesarPdf();
         }
       },

@@ -46,7 +46,7 @@ export class RecetasComponent implements OnInit {
   }
 
   imagenUrl(r: Receta): string {
-    return r.foto ? `${this.backendBase}${r.foto}` : '';
+    return r.foto || '';
   }
 
   get recetasFiltradas(): Receta[] {

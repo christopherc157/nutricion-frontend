@@ -68,7 +68,7 @@ export class ConfigRecetasComponent implements OnInit {
   }
 
   imagenUrl(r: Receta): string {
-    return r.foto ? `${this.backendBase}${r.foto}` : '';
+    return r.foto || '';
   }
 
   promedio(r: Receta): string {

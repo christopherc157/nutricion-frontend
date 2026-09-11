@@ -69,7 +69,7 @@ export class ConfigProductosComponent implements OnInit {
   }
 
   imagenUrl(p: Producto): string {
-    return p.foto ? `${this.backendBase}${p.foto}` : '';
+    return p.foto || '';
   }
 
   nuevo() {
