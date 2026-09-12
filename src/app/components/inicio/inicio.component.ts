@@ -107,7 +107,7 @@ export class InicioComponent implements OnInit, OnDestroy {
   }
 
   imagenProducto(p: Producto): string {
-    return p.foto ? `${this.backendBase}${p.foto}` : '';
+    return p.foto || '';
   }
 
   private iniciarCarrusel() {
