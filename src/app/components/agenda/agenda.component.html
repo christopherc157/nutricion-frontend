@@ -8,230 +8,80 @@
     <p>Elige un día disponible en el calendario y selecciona el horario que mejor te acomode.</p>
   </div>
 
-  <div class="calendario-card">
+  <app-loading *ngIf="cargandoCalendario" mensaje="Cargando calendario..."></app-loading>
 
-    <app-loading *ngIf="cargandoCalendario" mensaje="Cargando calendario..."></app-loading>
+  <div class="agenda-layout-dinamico" [class.expandido]="esDesktop && panelAbierto" *ngIf="!cargandoCalendario">
 
-    <div class="calendario-header">
-      <button class="nav-mes" (click)="cambiarMes(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-      <div class="mes-titulo-wrap">
-        <h3>{{ nombresMeses[mesActual.getMonth()] }} {{ mesActual.getFullYear() }}</h3>
-        <button class="btn-hoy" (click)="irAHoy()">Hoy</button>
+    <!-- COLUMNA: CALENDARIO -->
+    <div class="columna-calendario">
+      <div class="calendario-card">
+
+        <div class="calendario-header">
+          <button class="nav-mes" (click)="cambiarMes(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="mes-titulo-wrap">
+            <h3>{{ nombresMeses[mesActual.getMonth()] }} {{ mesActual.getFullYear() }}</h3>
+            <button class="btn-hoy" (click)="irAHoy()">Hoy</button>
+          </div>
+          <button class="nav-mes" (click)="cambiarMes(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <div class="dias-semana">
+          <span *ngFor="let d of nombresDias">{{ d }}</span>
+        </div>
+
+        <div class="grid-calendario">
+          <div
+            class="celda"
+            *ngFor="let celda of celdas"
+            [class.vacia]="!celda"
+            [class.disponible]="celda?.disponible && !celda?.esPasado"
+            [class.deshabilitada]="celda && (!celda.disponible || celda.esPasado)"
+            [class.hoy]="celda?.esHoy"
+            [class.activa]="esDesktop && panelAbierto && celda?.fecha === fechaSeleccionada"
+            (click)="seleccionarDia(celda)"
+          >
+            <span *ngIf="celda">{{ celda.numero }}</span>
+          </div>
+        </div>
+
+        <div class="leyenda">
+          <span><i class="punto disponible"></i> Disponible</span>
+          <span><i class="punto ocupado"></i> Sin horarios</span>
+        </div>
+
       </div>
-      <button class="nav-mes" (click)="cambiarMes(1)"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
-    <div class="dias-semana">
-      <span *ngFor="let d of nombresDias">{{ d }}</span>
-    </div>
+    <!-- COLUMNA: PANEL LATERAL (solo escritorio) -->
+    <div class="columna-panel" *ngIf="esDesktop">
 
-    <div class="grid-calendario">
-      <div
-        class="celda"
-        *ngFor="let celda of celdas"
-        [class.vacia]="!celda"
-        [class.disponible]="celda?.disponible && !celda?.esPasado"
-        [class.deshabilitada]="celda && (!celda.disponible || celda.esPasado)"
-        [class.hoy]="celda?.esHoy"
-        (click)="seleccionarDia(celda)"
-      >
-  <span *ngIf="celda">{{ celda.numero }}</span>
-</div>
-    </div>
+      <div class="panel-lateral" *ngIf="panelAbierto">
+        <button class="modal-close" *ngIf="paso !== 'confirmacion'" (click)="intentarCerrar()" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
 
-    <div class="leyenda">
-      <span><i class="punto disponible"></i> Disponible</span>
-      <span><i class="punto ocupado"></i> Sin horarios</span>
+        <ng-container *ngTemplateOutlet="contenidoPasos"></ng-container>
+      </div>
+
+      <div class="panel-placeholder" *ngIf="!panelAbierto">
+        <i class="fa-regular fa-calendar-check"></i>
+        <p>Selecciona un día disponible en el calendario para ver los horarios y agendar tu cita.</p>
+      </div>
+
     </div>
 
   </div>
 
 </section>
 
-<!-- MODAL: HORAS / FORM / CONFIRMACIÓN -->
-<div class="modal-backdrop" *ngIf="mostrarModal" (click)="intentarCerrar()">
+<!-- MODAL: solo en celular -->
+<div class="modal-backdrop" *ngIf="!esDesktop && mostrarModal" (click)="intentarCerrar()">
   <div class="modal" (click)="$event.stopPropagation()">
-
     <button class="modal-close" *ngIf="paso !== 'confirmacion'" (click)="intentarCerrar()" aria-label="Cerrar">
       <i class="fa-solid fa-xmark"></i>
     </button>
 
-    <ng-container *ngIf="paso === 'horas'">
-
-      <div class="paso-header">
-        <div class="paso-icono"><i class="fa-solid fa-calendar-day"></i></div>
-        <div>
-          <span class="paso-eyebrow">Paso 1 de 2</span>
-          <h2>{{ formatearFechaVisual(fechaSeleccionada) }}</h2>
-          <p class="paso-subtitulo">Elige el horario que prefieras</p>
-        </div>
-      </div>
-
-      <ng-container *ngIf="horas.length; else sinHoras">
-
-        <div class="horas-bloque" *ngIf="horasManana.length">
-          <p class="horas-bloque-titulo"><i class="fa-solid fa-sun"></i> Mañana</p>
-          <div class="horas-grid">
-            <button
-              *ngFor="let h of horasManana"
-              class="hora-btn"
-              [class.ocupada]="!h.disponible"
-              [disabled]="!h.disponible"
-              (click)="seleccionarHora(h)"
-            >
-              <i class="fa-regular fa-clock"></i>
-              {{ formatearHora12(h.hora) }}
-            </button>
-          </div>
-        </div>
-
-        <div class="horas-bloque" *ngIf="horasTarde.length">
-          <p class="horas-bloque-titulo"><i class="fa-solid fa-cloud-sun"></i> Tarde</p>
-          <div class="horas-grid">
-            <button
-              *ngFor="let h of horasTarde"
-              class="hora-btn"
-              [class.ocupada]="!h.disponible"
-              [disabled]="!h.disponible"
-              (click)="seleccionarHora(h)"
-            >
-              <i class="fa-regular fa-clock"></i>
-              {{ formatearHora12(h.hora) }}
-            </button>
-          </div>
-        </div>
-
-      </ng-container>
-
-      <ng-template #sinHoras>
-        <div class="sin-horas">
-          <i class="fa-regular fa-calendar-xmark"></i>
-          <p>No hay horarios cargados para este día.</p>
-        </div>
-      </ng-template>
-
-      <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
-    </ng-container>
-
-    <ng-container *ngIf="paso === 'form'">
-
-      <div class="paso-header">
-        <div class="paso-icono"><i class="fa-solid fa-user-pen"></i></div>
-        <div>
-          <span class="paso-eyebrow">Paso 2 de 2</span>
-          <h2>{{ formatearFechaVisual(fechaSeleccionada) }} · {{ formatearHora12(horaSeleccionada) }}</h2>
-          <p class="paso-subtitulo">Completa tus datos para confirmar</p>
-        </div>
-      </div>
-      <div class="hold-timer" [class.urgente]="segundosRestantes <= 60">
-        <i class="fa-solid fa-clock"></i>
-        Tienes {{ tiempoFormateado }} para completar tu cita
-      </div>
-
-      <button class="volver-btn" (click)="volverAHoras()">
-        <i class="fa-solid fa-arrow-left"></i> Cambiar horario
-      </button>
-
-      <div class="input-group">
-        <label>Nombre completo</label>
-        <input type="text" [(ngModel)]="form.nombre" placeholder="Tu nombre completo">
-      </div>
-
-      <div class="input-group">
-        <label>Teléfono (WhatsApp)</label>
-        <input type="tel" [(ngModel)]="form.telefono" placeholder="4521234567">
-      </div>
-
-      <div class="input-group">
-        <label>Correo electrónico</label>
-        <input type="email" [(ngModel)]="form.correo" placeholder="tu@correo.com">
-      </div>
-
-      <div class="input-group">
-        <label>Tipo de consulta</label>
-        <select [(ngModel)]="form.tipoConsulta">
-          <option value="">Selecciona una opción</option>
-          <option *ngFor="let t of tiposConsulta" [value]="t">{{ t }}</option>
-        </select>
-      </div>
-
-      <div class="input-group">
-        <label>Motivo principal</label>
-        <textarea rows="3" [(ngModel)]="form.motivo" placeholder="Cuéntame brevemente qué te gustaría trabajar"></textarea>
-      </div>
-
-      <label class="check-privacidad">
-        <input type="checkbox" [(ngModel)]="aceptaPrivacidad">
-        <span>
-          He leído y acepto el
-          <a routerLink="/privacidad" target="_blank" (click)="$event.stopPropagation()">Aviso de Privacidad</a>
-        </span>
-      </label>
-
-      <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
-
-      <button class="btn-confirmar" [disabled]="enviandoCodigo" (click)="confirmarCita()">
-        {{ enviandoCodigo ? 'Enviando código...' : 'Enviar código de verificación' }}
-      </button>
-
-    </ng-container>
-
-    <ng-container *ngIf="paso === 'verificacion'">
-
-      <div class="paso-header">
-        <div class="paso-icono"><i class="fa-solid fa-envelope-circle-check"></i></div>
-        <div>
-          <span class="paso-eyebrow">Verificación</span>
-          <h2>Revisa tu correo</h2>
-          <p class="paso-subtitulo">Te enviamos un código a {{ form.correo }}</p>
-        </div>
-      </div>
-      <div class="hold-timer" [class.urgente]="segundosRestantes <= 60">
-        <i class="fa-solid fa-clock"></i>
-        Tienes {{ tiempoFormateado }} para completar tu cita
-      </div>
-    
-      <button class="volver-btn" (click)="volverAlFormulario()">
-        <i class="fa-solid fa-arrow-left"></i> Corregir mis datos
-      </button>
-    
-      <div class="input-group">
-        <label>Código de 6 dígitos</label>
-        <input
-          type="text"
-          inputmode="numeric"
-          maxlength="6"
-          class="codigo-input"
-          [(ngModel)]="codigoIngresado"
-          placeholder="000000"
-        >
-      </div>
-    
-      <p class="error-text" *ngIf="errorVerificacion">{{ errorVerificacion }}</p>
-    
-      <button class="btn-confirmar" [disabled]="verificandoCodigo" (click)="confirmarCodigo()">
-        {{ verificandoCodigo ? 'Verificando...' : 'Verificar y agendar' }}
-      </button>
-    
-      <button class="btn-reenviar" [disabled]="cooldownReenvio > 0 || enviandoCodigo" (click)="reenviarCodigo()">
-        {{ cooldownReenvio > 0 ? 'Reenviar código (' + cooldownReenvio + 's)' : 'Reenviar código' }}
-      </button>
-    </ng-container>
-
-    <ng-container *ngIf="paso === 'confirmacion'">
-      <div class="confirmacion">
-        <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
-        <h2>¡Cita confirmada!</h2>
-        <p>{{ mensajeConfirmacion }}</p>
-
-        <a class="btn-whatsapp" [href]="whatsappUrl" target="_blank">
-          <i class="fa-brands fa-whatsapp"></i> Confirmar también por WhatsApp
-        </a>
-
-        <button class="btn-cerrar" (click)="cerrarModal()">Cerrar</button>
-      </div>
-    </ng-container>
-
+    <ng-container *ngTemplateOutlet="contenidoPasos"></ng-container>
   </div>
 </div>
 
@@ -247,5 +97,187 @@
     </div>
   </div>
 </div>
+
+<!-- CONTENIDO COMPARTIDO: se usa tanto en el modal de celular como en el panel de escritorio -->
+<ng-template #contenidoPasos>
+
+  <ng-container *ngIf="paso === 'horas'">
+
+    <div class="paso-header">
+      <div class="paso-icono"><i class="fa-solid fa-calendar-day"></i></div>
+      <div>
+        <span class="paso-eyebrow">Paso 1 de 2</span>
+        <h2>{{ formatearFechaVisual(fechaSeleccionada) }}</h2>
+        <p class="paso-subtitulo">Elige el horario que prefieras</p>
+      </div>
+    </div>
+
+    <ng-container *ngIf="horas.length; else sinHoras">
+
+      <div class="horas-bloque" *ngIf="horasManana.length">
+        <p class="horas-bloque-titulo"><i class="fa-solid fa-sun"></i> Mañana</p>
+        <div class="horas-grid">
+          <button
+            *ngFor="let h of horasManana"
+            class="hora-btn"
+            [class.ocupada]="!h.disponible"
+            [disabled]="!h.disponible"
+            (click)="seleccionarHora(h)"
+          >
+            <i class="fa-regular fa-clock"></i>
+            {{ formatearHora12(h.hora) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="horas-bloque" *ngIf="horasTarde.length">
+        <p class="horas-bloque-titulo"><i class="fa-solid fa-cloud-sun"></i> Tarde</p>
+        <div class="horas-grid">
+          <button
+            *ngFor="let h of horasTarde"
+            class="hora-btn"
+            [class.ocupada]="!h.disponible"
+            [disabled]="!h.disponible"
+            (click)="seleccionarHora(h)"
+          >
+            <i class="fa-regular fa-clock"></i>
+            {{ formatearHora12(h.hora) }}
+          </button>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <ng-template #sinHoras>
+      <div class="sin-horas">
+        <i class="fa-regular fa-calendar-xmark"></i>
+        <p>No hay horarios cargados para este día.</p>
+      </div>
+    </ng-template>
+
+    <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </ng-container>
+
+  <ng-container *ngIf="paso === 'form'">
+
+    <div class="paso-header">
+      <div class="paso-icono"><i class="fa-solid fa-user-pen"></i></div>
+      <div>
+        <span class="paso-eyebrow">Paso 2 de 2</span>
+        <h2>{{ formatearFechaVisual(fechaSeleccionada) }} · {{ formatearHora12(horaSeleccionada) }}</h2>
+        <p class="paso-subtitulo">Completa tus datos para confirmar</p>
+      </div>
+    </div>
+
+    <div class="hold-timer" [class.urgente]="segundosRestantes <= 60">
+      <i class="fa-solid fa-clock"></i>
+      Tienes {{ tiempoFormateado }} para completar tu cita
+    </div>
+
+    <button class="volver-btn" (click)="volverAHoras()">
+      <i class="fa-solid fa-arrow-left"></i> Cambiar horario
+    </button>
+
+    <div class="input-group">
+      <label>Nombre completo</label>
+      <input type="text" [(ngModel)]="form.nombre" placeholder="Tu nombre completo">
+    </div>
+
+    <div class="input-group">
+      <label>Teléfono (WhatsApp)</label>
+      <input type="tel" [(ngModel)]="form.telefono" placeholder="4521234567">
+    </div>
+
+    <div class="input-group">
+      <label>Correo electrónico</label>
+      <input type="email" [(ngModel)]="form.correo" placeholder="tu@correo.com">
+    </div>
+
+    <div class="input-group">
+      <label>Tipo de consulta</label>
+      <select [(ngModel)]="form.tipoConsulta">
+        <option value="">Selecciona una opción</option>
+        <option *ngFor="let t of tiposConsulta" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label>Motivo principal</label>
+      <textarea rows="3" [(ngModel)]="form.motivo" placeholder="Cuéntame brevemente qué te gustaría trabajar"></textarea>
+    </div>
+
+    <label class="check-privacidad">
+      <input type="checkbox" [(ngModel)]="aceptaPrivacidad">
+      <span>
+        He leído y acepto el
+        <a routerLink="/privacidad" target="_blank" (click)="$event.stopPropagation()">Aviso de Privacidad</a>
+      </span>
+    </label>
+
+    <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <button class="btn-confirmar" [disabled]="enviandoCodigo" (click)="confirmarCita()">
+      {{ enviandoCodigo ? 'Enviando código...' : 'Enviar código de verificación' }}
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="paso === 'verificacion'">
+
+    <div class="paso-header">
+      <div class="paso-icono"><i class="fa-solid fa-envelope-circle-check"></i></div>
+      <div>
+        <span class="paso-eyebrow">Verificación</span>
+        <h2>Revisa tu correo</h2>
+        <p class="paso-subtitulo">Te enviamos un código a {{ form.correo }}</p>
+      </div>
+    </div>
+
+    <div class="hold-timer" [class.urgente]="segundosRestantes <= 60">
+      <i class="fa-solid fa-clock"></i>
+      Tienes {{ tiempoFormateado }} para completar tu cita
+    </div>
+
+    <button class="volver-btn" (click)="paso = 'form'">
+      <i class="fa-solid fa-arrow-left"></i> Corregir mis datos
+    </button>
+
+    <div class="input-group">
+      <label>Código de 6 dígitos</label>
+      <input
+        type="text"
+        inputmode="numeric"
+        maxlength="6"
+        class="codigo-input"
+        [(ngModel)]="codigoIngresado"
+        placeholder="000000"
+      >
+    </div>
+
+    <p class="error-text" *ngIf="errorVerificacion">{{ errorVerificacion }}</p>
+
+    <button class="btn-confirmar" [disabled]="verificandoCodigo" (click)="confirmarCodigo()">
+      {{ verificandoCodigo ? 'Verificando...' : 'Verificar y agendar' }}
+    </button>
+
+    <button class="btn-reenviar" [disabled]="cooldownReenvio > 0 || enviandoCodigo" (click)="reenviarCodigo()">
+      {{ cooldownReenvio > 0 ? 'Reenviar código (' + cooldownReenvio + 's)' : 'Reenviar código' }}
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="paso === 'confirmacion'">
+    <div class="confirmacion">
+      <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <h2>¡Cita confirmada!</h2>
+      <p>{{ mensajeConfirmacion }}</p>
+
+      <a class="btn-whatsapp" [href]="whatsappUrl" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i> Confirmar también por WhatsApp
+      </a>
+
+      <button class="btn-cerrar" (click)="cerrarModal()">Cerrar</button>
+    </div>
+  </ng-container>
+
+</ng-template>
 
 <app-footer></app-footer>

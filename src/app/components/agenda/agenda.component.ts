@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NavComponent } from '../nav/nav.component';
 import { FooterComponent } from '../footer/footer.component';
 import { AgendaService, HoraDisponible } from '../../services/agenda.service';
-import { LoadingComponent } from '../loading/loading.component';
 import { VerificacionService } from '../../services/verificacion.service';
+import { LoadingComponent } from '../loading/loading.component';
 
 interface DiaCalendario {
   numero: number;
@@ -36,24 +36,17 @@ export class AgendaComponent implements OnInit {
   ];
   nombresDias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-  // Modal
+  // Modal (celular) / Panel lateral (escritorio)
   mostrarModal = false;
+  panelAbierto = false;
+  esDesktop = typeof window !== 'undefined' && window.innerWidth >= 900;
+
   mostrarConfirmacionCancelar = false;
   paso: 'horas' | 'form' | 'verificacion' | 'confirmacion' = 'horas';
 
   fechaSeleccionada = '';
   horas: HoraDisponible[] = [];
   horaSeleccionada = '';
-  segundosRestantes = 0;
-  private timerHold: any;
-
-  get horasManana(): HoraDisponible[] {
-    return this.horas.filter(h => Number(h.hora.split(':')[0]) < 12);
-  }
-  
-  get horasTarde(): HoraDisponible[] {
-    return this.horas.filter(h => Number(h.hora.split(':')[0]) >= 12);
-  }
 
   tiposConsulta = [
     'Primera vez',
@@ -70,6 +63,7 @@ export class AgendaComponent implements OnInit {
     tipoConsulta: '',
     motivo: ''
   };
+
   aceptaPrivacidad = false;
 
   errorMessage = '';
@@ -80,16 +74,26 @@ export class AgendaComponent implements OnInit {
   verificandoCodigo = false;
   cooldownReenvio = 0;
   private cooldownInterval: any;
+
+  segundosRestantes = 0;
+  private timerHold: any;
+
   cargando = false;
   mensajeConfirmacion = '';
   whatsappUrl = '';
 
-  constructor(private agendaService: AgendaService,
-              private verificacionService: VerificacionService
-              ) {}
+  constructor(
+    private agendaService: AgendaService,
+    private verificacionService: VerificacionService
+  ) {}
 
   ngOnInit() {
     this.cargarDisponibilidad();
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.esDesktop = window.innerWidth >= 900;
   }
 
   cargarDisponibilidad() {
@@ -125,7 +129,7 @@ export class AgendaComponent implements OnInit {
     for (let dia = 1; dia <= diasEnMes; dia++) {
       const fecha = this.formatearFecha(anio, mes, dia);
       const fechaObj = new Date(anio, mes, dia);
-    
+
       celdas.push({
         numero: dia,
         fecha,
@@ -148,13 +152,21 @@ export class AgendaComponent implements OnInit {
     const [anio, mes, dia] = fecha.split('-');
     return `${dia}-${mes}-${anio}`;
   }
-  
+
   formatearHora12(hora: string): string {
     const [h, m] = hora.split(':').map(Number);
     const periodo = h >= 12 ? 'PM' : 'AM';
     let h12 = h % 12;
     if (h12 === 0) h12 = 12;
     return `${h12}:${m.toString().padStart(2, '0')} ${periodo}`;
+  }
+
+  get horasManana(): HoraDisponible[] {
+    return this.horas.filter(h => Number(h.hora.split(':')[0]) < 12);
+  }
+
+  get horasTarde(): HoraDisponible[] {
+    return this.horas.filter(h => Number(h.hora.split(':')[0]) >= 12);
   }
 
   cambiarMes(delta: number) {
@@ -174,7 +186,12 @@ export class AgendaComponent implements OnInit {
     this.errorMessage = '';
     this.horaSeleccionada = '';
     this.paso = 'horas';
-    this.mostrarModal = true;
+
+    if (this.esDesktop) {
+      this.panelAbierto = true;
+    } else {
+      this.mostrarModal = true;
+    }
 
     this.agendaService.obtenerHorasDia(celda.fecha).subscribe({
       next: (horas) => this.horas = horas,
@@ -184,7 +201,7 @@ export class AgendaComponent implements OnInit {
 
   seleccionarHora(hora: HoraDisponible) {
     if (!hora.disponible) return;
-  
+
     this.agendaService.reservarHora(this.fechaSeleccionada, hora.hora).subscribe({
       next: (res) => {
         this.horaSeleccionada = hora.hora;
@@ -193,38 +210,36 @@ export class AgendaComponent implements OnInit {
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Esa hora ya no está disponible, elige otra';
-        // Volvemos a cargar las horas para que se refresque cuál sigue libre
         this.agendaService.obtenerHorasDia(this.fechaSeleccionada).subscribe({
           next: (horas) => this.horas = horas
         });
       }
     });
   }
-  
+
   private iniciarTemporizadorHold(segundosIniciales: number) {
     this.segundosRestantes = segundosIniciales;
     clearInterval(this.timerHold);
-  
+
     this.timerHold = setInterval(() => {
       this.segundosRestantes--;
-  
+
       if (this.segundosRestantes <= 0) {
         clearInterval(this.timerHold);
         this.manejarExpiracionHold();
       }
     }, 1000);
   }
-  
+
   private manejarExpiracionHold() {
-    this.errorMessage = '';
     this.paso = 'horas';
     this.errorMessage = 'Se acabó el tiempo para completar tu cita. Por favor elige un horario nuevamente.';
-  
+
     this.agendaService.obtenerHorasDia(this.fechaSeleccionada).subscribe({
       next: (horas) => this.horas = horas
     });
   }
-  
+
   get tiempoFormateado(): string {
     const min = Math.floor(this.segundosRestantes / 60);
     const seg = this.segundosRestantes % 60;
@@ -235,7 +250,7 @@ export class AgendaComponent implements OnInit {
     clearInterval(this.timerHold);
     this.agendaService.liberarHora(this.fechaSeleccionada, this.horaSeleccionada).subscribe();
     this.paso = 'horas';
-  
+
     this.agendaService.obtenerHorasDia(this.fechaSeleccionada).subscribe({
       next: (horas) => this.horas = horas
     });
@@ -246,14 +261,15 @@ export class AgendaComponent implements OnInit {
       this.errorMessage = 'Por favor completa nombre, teléfono, correo y tipo de consulta';
       return;
     }
+
     if (!this.aceptaPrivacidad) {
       this.errorMessage = 'Debes aceptar el Aviso de Privacidad para continuar';
       return;
     }
-  
+
     this.errorMessage = '';
     this.enviandoCodigo = true;
-  
+
     this.verificacionService.enviarCodigo(this.form.correo.trim(), 'cita').subscribe({
       next: () => {
         this.enviandoCodigo = false;
@@ -268,16 +284,16 @@ export class AgendaComponent implements OnInit {
       }
     });
   }
-  
+
   confirmarCodigo() {
     if (this.codigoIngresado.trim().length !== 6) {
       this.errorVerificacion = 'Ingresa el código de 6 dígitos';
       return;
     }
-  
+
     this.errorVerificacion = '';
     this.verificandoCodigo = true;
-  
+
     this.verificacionService.confirmarCodigo(this.form.correo.trim(), 'cita', this.codigoIngresado.trim()).subscribe({
       next: (res) => {
         this.verificandoCodigo = false;
@@ -290,10 +306,10 @@ export class AgendaComponent implements OnInit {
       }
     });
   }
-  
+
   crearCitaFinal() {
     this.cargando = true;
-  
+
     this.agendaService.crearCita({
       nombre: this.form.nombre.trim(),
       telefono: this.form.telefono.trim(),
@@ -317,19 +333,19 @@ export class AgendaComponent implements OnInit {
         this.errorMessage = err.error?.message || 'Esa hora ya no está disponible, elige otra';
         this.cargando = false;
         this.paso = 'horas';
-      
+
         this.agendaService.obtenerHorasDia(this.fechaSeleccionada).subscribe({
           next: (horas) => this.horas = horas
         });
       }
     });
   }
-  
+
   reenviarCodigo() {
     if (this.cooldownReenvio > 0) return;
-  
+
     this.enviandoCodigo = true;
-  
+
     this.verificacionService.enviarCodigo(this.form.correo.trim(), 'cita').subscribe({
       next: () => {
         this.enviandoCodigo = false;
@@ -342,11 +358,7 @@ export class AgendaComponent implements OnInit {
       }
     });
   }
-  
-  volverAlFormulario() {
-    this.paso = 'form';
-  }
-  
+
   private iniciarCooldown() {
     this.cooldownReenvio = 30;
     clearInterval(this.cooldownInterval);
@@ -360,9 +372,10 @@ export class AgendaComponent implements OnInit {
     if ((this.paso === 'form' || this.paso === 'verificacion') && this.horaSeleccionada) {
       this.agendaService.liberarHora(this.fechaSeleccionada, this.horaSeleccionada).subscribe();
     }
-  
+
     clearInterval(this.timerHold);
     this.mostrarModal = false;
+    this.panelAbierto = false;
     this.form = { nombre: '', telefono: '', correo: '', tipoConsulta: '', motivo: '' };
     this.aceptaPrivacidad = false;
     this.errorMessage = '';
@@ -375,19 +388,18 @@ export class AgendaComponent implements OnInit {
   }
 
   intentarCerrar() {
-    // Si ya se confirmó la cita, cerrar directo no tiene nada que perder
     if (this.paso === 'confirmacion') {
       this.cerrarModal();
       return;
     }
     this.mostrarConfirmacionCancelar = true;
   }
-  
+
   confirmarCancelar() {
     this.mostrarConfirmacionCancelar = false;
     this.cerrarModal();
   }
-  
+
   seguirAgendando() {
     this.mostrarConfirmacionCancelar = false;
   }
